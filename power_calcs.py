@@ -1,33 +1,24 @@
-'''
-Define initial power requirements for the turbine from the fundamental equation.
-If one variable is missing, calculate it.
-If 2 variables are missing, plot the missing variables.
-
-Equation:
-
-P = effiency * rho * A * V^3
-
-'''
 import numpy as np
 import matplotlib.pyplot as plt
+import argparse
 
-def P_eq(effiency, rho, A, V):
-    return effiency * rho * A * V**3
+def P_eq(efficiency, rho, A, V):
+    return efficiency * rho * A * V**3
 
-def effiency_eq(P, rho, A, V):
+def efficiency_eq(P, rho, A, V):
     return P / (rho * A * V**3)
 
-def rho_eq(P, effiency, A, V):
-    return P / (effiency * A * V**3)
+def rho_eq(P, efficiency, A, V):
+    return P / (efficiency * A * V**3)
 
-def A_eq(P, effiency, rho, V):
-    return P / (effiency * rho * V**3)
+def A_eq(P, efficiency, rho, V):
+    return P / (efficiency * rho * V**3)
 
-def V_eq(P, effiency, rho, A):
-    return (P / (effiency * rho * A))**(1/3)
+def V_eq(P, efficiency, rho, A):
+    return (P / (efficiency * rho * A))**(1/3)
 
 
-def power_calc(P=False, effiency=False, A=False, V=False):
+def power_calc(P=False, efficiency=False, A=False, V=False):
     # if one variable is missing, calculate it
     # if 2 variables are missing return a plot of the missing variables
     # if 3 or more missing, return an error
@@ -35,14 +26,14 @@ def power_calc(P=False, effiency=False, A=False, V=False):
     # define variable ranges
     res = 10
     P_range = np.linspace(400, 800, res) # W
-    effiency_range = np.linspace(0, 1, res) # decimal
+    efficiency_range = np.linspace(0, 1, res) # decimal
     rho = 1000 # kg/m^3 - density of water
     A_range = np.linspace(0, 2, res) # m^2
     V_range = np.linspace(0, 3, res) # m/s
 
-    inputs = [P, effiency, A, V]
-    input_names = ['P', 'effiency', 'A', 'V']
-    ranges = [P_range, effiency_range, A_range, V_range]
+    inputs = [P, efficiency, A, V]
+    input_names = ['P', 'efficiency', 'A', 'V']
+    ranges = [P_range, efficiency_range, A_range, V_range]
     missing_var = []
     for i in inputs:
         if i == False:
@@ -50,28 +41,42 @@ def power_calc(P=False, effiency=False, A=False, V=False):
         else:
             missing_var.append(True)
 
+    print('\n-------------------------------------------\n')
     if missing_var.count(False) == 1:
         # calculate the missing variable
         if missing_var[0] == False:
-            P = P_eq(effiency, rho, A, V)
+            print('\n---------Calculating Power---------')
+            P = P_eq(efficiency, rho, A, V)
             print('Power = ', P)
         elif missing_var[1] == False:
-            effiency = effiency_eq(P, rho, A, V)
-            print('Effiency = ', effiency)
+            print('\n---------Calculating efficiency---------')
+            efficiency = efficiency_eq(P, rho, A, V)
+            print('efficiency = ', efficiency)
         elif missing_var[2] == False:
-            A = A_eq(P, effiency, rho, V)
+            print('\n---------Calculating Area---------')
+            A = A_eq(P, efficiency, rho, V)
             print('Area = ', A)
         elif missing_var[3] == False:
-            V = V_eq(P, effiency, rho, A)
+            print('\n---------Calculating Velocity---------')
+            V = V_eq(P, efficiency, rho, A)
             print('Velocity = ', V)
 
-        return P, effiency, rho, A, V
+        print('\n-------------------------------------------')
+        print('All variables calculated.')
+        print('\nPower = ', P)
+        print('\nefficiency = ', efficiency)
+        print('\nArea = ', A)
+        print('\nVelocity = ', V)
+        print('\n-------------------------------------------')
+
+        return P, efficiency, rho, A, V
     
     elif missing_var.count(False) == 2:
+        print('\n-------------------------------------------')
         # plot the missing variables
-        # either P + effiency, P + A, P + V, effiency + A, effiency + V, A + V
+        # either P + efficiency, P + A, P + V, efficiency + A, efficiency + V, A + V
         # identify which variables are missing and replace with a range
-        vars = [P, effiency, A, V]
+        vars = [P, efficiency, A, V]
         int_vars = [] # vars of interest
         for i in range(len(missing_var)):
             if missing_var[i] == False:
@@ -83,15 +88,16 @@ def power_calc(P=False, effiency=False, A=False, V=False):
             (0, 1): P_eq,
             (0, 2): P_eq,
             (0, 3): P_eq,
-            (1, 2): effiency_eq,
-            (1, 3): effiency_eq,
+            (1, 2): efficiency_eq,
+            (1, 3): efficiency_eq,
             (2, 3): A_eq
         }
 
         # Iterate over the dictionary
         for indices, equation in plot_equations.items():
             if int_vars == list(indices):
-                print(f"Plotting {equation}")
+                print('\nMissing variables: %s, %s'  %( input_names[int_vars[0]], input_names[int_vars[1]] ))
+                # print("Plotting {equation}")
                 
                 y = equation(vars[0], vars[1], vars[2], vars[3])
                 x = vars[int_vars[1]]
@@ -104,16 +110,64 @@ def power_calc(P=False, effiency=False, A=False, V=False):
                 plt.ylabel(input_names[int_vars[0]])
                 plt.show()
                 pass
+        print('\n-------------------------------------------')
 
-       
-
-        return P, effiency, rho, A, V
+        return P, efficiency, rho, A, V
+    
+    elif missing_var.count(False) == 0:
+        print('\n-------------------------------------------')
+        print('All variables entered.')
+        print('\nPower = ', P)
+        print('\nefficiency = ', efficiency)
+        print('\nArea = ', A)
+        print('\nVelocity = ', V)
+        print('\n-------------------------------------------')
+        return P, efficiency, rho, A, V
+    
     else:
         # return an error
         raise ValueError('Too many missing variables. Please enter 3 or more variables.')
+
+
     
 
 if __name__ == '__main__':
+    '''
+    Define initial power requirements for the turbine from the fundamental equation.
+    If one variable is missing, calculate it.
+    If 2 variables are missing, plot the missing variables.
 
+    Equation:
 
-    P, efficiency, rho, A, V = power_calc(V=1.5, effiency=0.35)
+    P = efficiency * rho * A * V^3
+
+    P = Power (W)
+    efficiency = efficiency (decimal)
+    rho = density of water (kg/m^3)
+    A = Area (m^2)
+    V = Velocity (m/s)
+
+    Usage:
+
+    python3 power_calcs.py -P 400 -e 0.35 -A 0.8 -V 1
+    (or any combination of 2 or more variables)
+
+    Help:
+
+    python3 power_calcs.py -h
+
+    '''
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-P', '--power', default=400,type=float, help='Power (W)')
+    parser.add_argument('-e', '--efficiency', default=0.35, type=float, help='Efficiency (decimal)')
+    parser.add_argument('-A', '--area', default=0.8, type=float, help='Area (m^2)')
+    parser.add_argument('-V', '--velocity', default=1, type=float, help='Velocity (m/s)')
+    args = parser.parse_args()
+
+    P = args.power
+    efficiency = args.efficiency
+    A = args.area
+    V = args.velocity
+
+    P, efficiency, rho, A, V = power_calc(V=V, efficiency=efficiency, A=A, P=P)
