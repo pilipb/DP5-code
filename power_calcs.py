@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 
+# define equations
 def P_eq(efficiency, rho, A, V):
     return efficiency * rho * A * V**3
 
@@ -159,10 +160,10 @@ if __name__ == '__main__':
     '''
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-P', '--power', default=400,type=float, help='Power (W)')
-    parser.add_argument('-e', '--efficiency', default=0.35, type=float, help='Efficiency (decimal)')
-    parser.add_argument('-A', '--area', default=0.8, type=float, help='Area (m^2)')
-    parser.add_argument('-V', '--velocity', default=1, type=float, help='Velocity (m/s)')
+    parser.add_argument('-P', '--power', default=False, type=float, help='Power (W)')
+    parser.add_argument('-e', '--efficiency', default=False, type=float, help='Efficiency (decimal)')
+    parser.add_argument('-A', '--area', default=False, type=float, help='Area (m^2)')
+    parser.add_argument('-V', '--velocity', default=False, type=float, help='Velocity (m/s)')
     args = parser.parse_args()
 
     P = args.power
