@@ -16,7 +16,7 @@ Using source panel method
 '''
 
 # Define the geometry of the aerofoil for symmetric aerofoil
-def foil(t):
+def foil(t, alpha=0):
     '''
     function returns the x and y coordinates of the aerofoil geometry
 
@@ -42,10 +42,24 @@ def foil(t):
     x = np.concatenate((x_upper[::-1], x_lower))
     y = np.concatenate((y_upper[::-1], y_lower))
 
-    return x,y
+    # rotate the aerofoil by alpha
+    x_rot = x*np.cos(alpha) - y*np.sin(alpha)
+    y_rot = x*np.sin(alpha) + y*np.cos(alpha)
+
+    return x_rot, y_rot
+
+
+def rotate(x, y, alpha=0):
+
+    alpha = np.radians(alpha)
+    # rotate the aerofoil by alpha
+    x_rot = x*np.cos(alpha) - y*np.sin(alpha)
+    y_rot = x*np.sin(alpha) + y*np.cos(alpha)
+
+    return x_rot, y_rot
 
 # Define the panels
-def define_panels(x, y, N = 20):
+def define_panels(x, y, N = 20, alpha=0):
     '''
     Discretizes the geometry into panels using the 'cosine' method.
 
@@ -82,10 +96,10 @@ def define_panels(x, y, N = 20):
         b = y[I + 1] - a * x[I + 1]
         y_ends[i] = a * x_ends[i] + b
     y_ends[N] = y_ends[0]
-
-
     
     panels = np.empty(N, dtype=object)
+
+    # define each panel
     for i in range(N):
         panels[i] = Panel(x_ends[i], y_ends[i], x_ends[i + 1], y_ends[i + 1])
     
@@ -220,7 +234,7 @@ def tan_vel(panels, freestream):
     panels[N // 2].sigma = 0.0
     panels[-1].sigma = 0.0
 
-    
+
 
 
 
