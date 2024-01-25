@@ -25,12 +25,12 @@ def power_calc(P=False, efficiency=False, A=False, V=False):
     # if 3 or more missing, return an error
 
     # define variable ranges
-    res = 10
+    res = 50
     P_range = np.linspace(400, 800, res) # W
     efficiency_range = np.linspace(0, 1, res) # decimal
     rho = 1000 # kg/m^3 - density of water
     A_range = np.linspace(0, 2, res) # m^2
-    V_range = np.linspace(0, 3, res) # m/s
+    V_range = np.linspace(0.16, 2.6, res) # m/s
 
     inputs = [P, efficiency, A, V]
     input_names = ['P', 'efficiency', 'A', 'V']
