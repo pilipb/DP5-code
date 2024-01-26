@@ -57,12 +57,7 @@ def naca_one_side(t, alpha=0, side='left'):
     x = np.concatenate((x_upper[::-1], x_lower))
     y = np.concatenate((y_upper[::-1], y_lower))
 
-    # convert alpha to radians:
-    alpha = np.radians(alpha)
-
-    # rotate the aerofoil by alpha
-    x_rot = x*np.cos(alpha) - y*np.sin(alpha)
-    y_rot = x*np.sin(alpha) + y*np.cos(alpha)
+    x_rot, y_rot = rotate(x,y,alpha=alpha)
 
     return x_rot, y_rot
 
@@ -96,16 +91,15 @@ def naca_foil(t, alpha=0):
     x = np.concatenate((x_upper[::-1], x_lower))
     y = np.concatenate((y_upper[::-1], y_lower))
 
-    alpha = np.radians(alpha)
-
-    # rotate the aerofoil by alpha
-    x_rot = x*np.cos(alpha) - y*np.sin(alpha)
-    y_rot = x*np.sin(alpha) + y*np.cos(alpha)
+    x_rot, y_rot = rotate(x,y,alpha=alpha)
 
     return x_rot, y_rot
 
 
 def rotate(x, y, alpha=0):
+
+    if alpha>0:
+        alpha = alpha-360
 
     alpha = np.radians(alpha)
     # rotate the aerofoil by alpha
@@ -115,7 +109,7 @@ def rotate(x, y, alpha=0):
     return x_rot, y_rot
 
 # Define the panels
-def define_panels(x, y, N = 20, alpha=0):
+def define_panels(x, y, N = 20, alpha=0.0):
     '''
     Discretizes the geometry into panels using the 'cosine' method.
 
@@ -128,27 +122,21 @@ def define_panels(x, y, N = 20, alpha=0):
     N: integer, optional
         Number of panels;
         default: 20
-    alpha: deg
+    alpha: float
         angle of attack
     
     '''
+
     R = (x.max() - x.min()) / 2  # radius of the circle
     x_center = (x.max() + x.min()) / 2  # x-coord of the center
     # define x-coord of the circle points
-    x_circle = x_center + R * np.cos(np.linspace(0.0, 2 * math.pi, N + 1))
+    x_circle = x_center + R * np.cos(np.linspace(0, 2 * math.pi, N + 1))
 
     x_ends = np.copy(x_circle)  # projection of the x-coord on the surface
     y_ends = np.empty_like(x_ends)  # initialization of the y-coord np array
 
     x, y = np.append(x, x[0]), np.append(y, y[0])  # extend arrays using np.append
 
-    # rotate points by alpha
-    alpha = np.radians(alpha)
-
-    # rotate the aerofoil by alpha
-    x = x*np.cos(alpha) - y*np.sin(alpha)
-    y = x*np.sin(alpha) + y*np.cos(alpha)
-    
     # computes the y-coordinate of end-points
     I = 0
     for i in range(N):
@@ -300,11 +288,6 @@ def tan_vel(panels, freestream):
     panels[-1].sigma = 0.0
 
 
-
-
-
-    
-
 def cp(panels, freestream):
     '''
     Computes the pressure coefficient on the surface of the panels.
@@ -420,3 +403,7 @@ class Panel:
         self.sigma = 0.0  # source strength
         self.vt = 0.0  # tangential velocity
         self.cp = 0.0  # pressure coefficient
+
+    def rotate_panel(self, alpha=0.0):
+        self.xa, self.ya = rotate(self.xa,self.ya, alpha=alpha)
+        self.xb, self.yb = rotate(self.xb,self.yb, alpha=alpha)
