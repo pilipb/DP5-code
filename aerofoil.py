@@ -14,9 +14,7 @@ Inspo: Barba, Lorena A., and Mesnard, Olivier (2019). Aero Python: classical aer
 
 Using source panel method
 '''
-
-# Define the geometry of the aerofoil for symmetric aerofoil
-def foil(t, alpha=0):
+def naca_one_side(t, alpha=0, side='left'):
     '''
     function returns the x and y coordinates of the aerofoil geometry
 
@@ -25,6 +23,62 @@ def foil(t, alpha=0):
     t: float
         maximum thickness of the aerofoil as a fraction of the chord length
         (so NACA0012 has t = 0.12)
+    alpha: float
+        angle of attack deg
+    side: str
+        left or right pontoon
+
+    '''
+    if side == 'left':
+        # define the x coordinates of the upper surface
+        x_upper = np.linspace(0, 1, 100)
+        # define the y coordinates of the upper surface
+        y_upper = 5*t * (0.2969 * np.sqrt(x_upper) - 0.1260 * x_upper - 0.3516 * x_upper**2 + 0.2843 * x_upper**3 - 0.1015 * x_upper**4)
+        # ref NACA
+        # define the x coordinates of the lower surface
+        x_lower = np.linspace(0, 1, 100)
+        # define the y coordinates of the lower surface
+        y_lower = np.zeros(len(x_lower))
+    elif side == 'right':
+        # define the x coordinates of the upper surface
+        x_lower = np.linspace(0, 1, 100)
+        # define the y coordinates of the lower surface
+        y_lower = -5*t * (0.2969 * np.sqrt(x_lower) - 0.1260 * x_lower - 0.3516 * x_lower**2 + 0.2843 * x_lower**3 - 0.1015 * x_lower**4)
+        # ref NACA
+        # define the x coordinates of the lower surface
+        x_upper = np.linspace(0, 1, 100)
+        # define the y coordinates of the lower surface
+        y_upper = np.zeros(len(x_upper))
+
+    else:
+        raise ValueError('define the side')
+
+    # make it all one surface anticlockwise
+    x = np.concatenate((x_upper[::-1], x_lower))
+    y = np.concatenate((y_upper[::-1], y_lower))
+
+    # convert alpha to radians:
+    alpha = np.radians(alpha)
+
+    # rotate the aerofoil by alpha
+    x_rot = x*np.cos(alpha) - y*np.sin(alpha)
+    y_rot = x*np.sin(alpha) + y*np.cos(alpha)
+
+    return x_rot, y_rot
+
+
+# Define the geometry of the aerofoil for symmetric aerofoil
+def naca_foil(t, alpha=0):
+    '''
+    function returns the x and y coordinates of the aerofoil geometry
+
+    Parameters
+    ----------
+    t: float
+        maximum thickness of the aerofoil as a fraction of the chord length
+        (so NACA0012 has t = 0.12)
+    alpha: deg float
+        angle of attack
     
     '''
 
@@ -41,6 +95,8 @@ def foil(t, alpha=0):
     # make it all one surface anticlockwise
     x = np.concatenate((x_upper[::-1], x_lower))
     y = np.concatenate((y_upper[::-1], y_lower))
+
+    alpha = np.radians(alpha)
 
     # rotate the aerofoil by alpha
     x_rot = x*np.cos(alpha) - y*np.sin(alpha)
@@ -72,17 +128,26 @@ def define_panels(x, y, N = 20, alpha=0):
     N: integer, optional
         Number of panels;
         default: 20
+    alpha: deg
+        angle of attack
     
     '''
     R = (x.max() - x.min()) / 2  # radius of the circle
     x_center = (x.max() + x.min()) / 2  # x-coord of the center
     # define x-coord of the circle points
     x_circle = x_center + R * np.cos(np.linspace(0.0, 2 * math.pi, N + 1))
-    
+
     x_ends = np.copy(x_circle)  # projection of the x-coord on the surface
     y_ends = np.empty_like(x_ends)  # initialization of the y-coord np array
 
     x, y = np.append(x, x[0]), np.append(y, y[0])  # extend arrays using np.append
+
+    # rotate points by alpha
+    alpha = np.radians(alpha)
+
+    # rotate the aerofoil by alpha
+    x = x*np.cos(alpha) - y*np.sin(alpha)
+    y = x*np.sin(alpha) + y*np.cos(alpha)
     
     # computes the y-coordinate of end-points
     I = 0
