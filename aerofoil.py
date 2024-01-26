@@ -63,19 +63,18 @@ def custom_foil(t, t_c ,alpha=0, side='left'):
         x_lower_1 = np.linspace(0, t_c, 50)
         x_lower_2 = np.linspace(t_c,1,50)
         # define the y coordinates of the upper surface
-        t_2 = t/2
-        y_lower_1 = -t_c * np.sqrt(t* x_upper_1)
+        y_lower_1 = -5*t * (0.2969 * np.sqrt(x_lower_1) - 0.1260 * x_lower_1 - 0.3516 * x_lower_1**2 + 0.2843 * x_lower_1**3 - 0.1015 * x_lower_1**4)
         # for the second part will be flat:
-        y_lower_2 = np.ones(len(x_lower_2))*t/2
+        y_lower_2 = np.ones(len(x_lower_2))*y_lower_1[-1]
         # combine the two parts
-        x_upper = np.concatenate((x_lower_1, x_lower_2))
-        y_upper = np.concatenate((y_lower_1, y_lower_2))
+        x_lower = np.concatenate((x_lower_1, x_lower_2))
+        y_lower = np.concatenate((y_lower_1, y_lower_2))
 
         # ref NACA
         # define the x coordinates of the lower surface
         x_upper = np.linspace(0, 1, 100)
         # define the y coordinates of the lower surface
-        y_upper = 5*t * (0.2969 * np.sqrt(x_lower) - 0.1260 * x_lower - 0.3516 * x_lower**2 + 0.2843 * x_lower**3 - 0.1015 * x_lower**4)
+        y_upper = 5*t * (0.2969 * np.sqrt(x_upper) - 0.1260 * x_upper - 0.3516 * x_upper**2 + 0.2843 * x_upper**3 - 0.1015 * x_upper**4)
 
     else:
         raise ValueError('define the side')
