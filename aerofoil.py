@@ -10,10 +10,88 @@ The aerofoils are identical and in water, so the flow is incompressible and invi
 
 The flow is assumed to be 2D, so the flow is in the x-y plane
 
-Inspo: Barba, Lorena A., and Mesnard, Olivier (2019). Aero Python: classical aerodynamics of potential flow using Python. Journal of Open Source Education, 2(15), 45, https://doi.org/10.21105/jose.00045
+Start point: Barba, Lorena A., and Mesnard, Olivier (2019). Aero Python: classical aerodynamics of potential flow using Python. 
+Journal of Open Source Education, 2(15), 45, https://doi.org/10.21105/jose.00045
 
 Using source panel method
 '''
+
+'''
+Aerofoil geometries:
+
+'''
+def custom_foil(t, t_c ,alpha=0, side='left'):
+    '''
+    Left (LE) to right (TE) will:
+    start with a sideways parabolic until reaching a width of t/2 at x=t_c,
+    after which will be flat to the TE
+    the other side will follow the NACA shape
+
+    Parameters
+    ----------
+    t: float
+        maximum thickness of the aerofoil as a fraction of the chord length
+        (so NACA0012 has t = 0.12)
+    t_c: float
+        x value at which the maximum thickness occurs on the inside edge
+    alpha: float
+        angle of attack deg
+    side: str
+        left or right pontoon
+    
+    '''
+
+    if side == 'left':
+        # define the x coordinates of the upper surface
+        x_upper_1 = np.linspace(0, t_c, 50)
+        x_upper_2 = np.linspace(t_c,1,50)
+        # define the y coordinates of the upper surface
+        y_upper_1 = 5*t * (0.2969 * np.sqrt(x_upper_1) - 0.1260 * x_upper_1 - 0.3516 * x_upper_1**2 + 0.2843 * x_upper_1**3 - 0.1015 * x_upper_1**4)
+        # for the second part will be flat:
+        y_upper_2 = np.ones(len(x_upper_2))*y_upper_1[-1]
+        # combine the two parts
+        x_upper = np.concatenate((x_upper_1, x_upper_2))
+        y_upper = np.concatenate((y_upper_1, y_upper_2))
+
+        # ref NACA
+        # define the x coordinates of the lower surface
+        x_lower = np.linspace(0, 1, 100)
+        # define the y coordinates of the lower surface
+        y_lower = -5*t * (0.2969 * np.sqrt(x_lower) - 0.1260 * x_lower - 0.3516 * x_lower**2 + 0.2843 * x_lower**3 - 0.1015 * x_lower**4)
+    elif side == 'right':
+        # define the x coordinates of the upper surface
+        x_lower_1 = np.linspace(0, t_c, 50)
+        x_lower_2 = np.linspace(t_c,1,50)
+        # define the y coordinates of the upper surface
+        t_2 = t/2
+        y_lower_1 = -t_c * np.sqrt(t* x_upper_1)
+        # for the second part will be flat:
+        y_lower_2 = np.ones(len(x_lower_2))*t/2
+        # combine the two parts
+        x_upper = np.concatenate((x_lower_1, x_lower_2))
+        y_upper = np.concatenate((y_lower_1, y_lower_2))
+
+        # ref NACA
+        # define the x coordinates of the lower surface
+        x_upper = np.linspace(0, 1, 100)
+        # define the y coordinates of the lower surface
+        y_upper = 5*t * (0.2969 * np.sqrt(x_lower) - 0.1260 * x_lower - 0.3516 * x_lower**2 + 0.2843 * x_lower**3 - 0.1015 * x_lower**4)
+
+    else:
+        raise ValueError('define the side')
+
+    # make it all one surface anticlockwise
+    x = np.concatenate((x_upper[::-1], x_lower))
+    y = np.concatenate((y_upper[::-1], y_lower))
+
+    x_rot, y_rot = rotate(x,y,alpha=alpha)
+
+    return x_rot, y_rot
+
+
+
+
+
 def naca_one_side(t, alpha=0, side='left'):
     '''
     function returns the x and y coordinates of the aerofoil geometry
@@ -95,6 +173,11 @@ def naca_foil(t, alpha=0):
 
     return x_rot, y_rot
 
+
+'''
+Calculation functions and classes
+
+'''
 
 def rotate(x, y, alpha=0):
 
