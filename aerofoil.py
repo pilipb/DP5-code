@@ -47,12 +47,11 @@ def custom_foil(t, t_c ,alpha=0, side='left'):
         x_upper_2 = np.linspace(t_c,1,50)
         # define the y coordinates of the upper surface
         y_upper_1 = 5*t * (0.2969 * np.sqrt(x_upper_1) - 0.1260 * x_upper_1 - 0.3516 * x_upper_1**2 + 0.2843 * x_upper_1**3 - 0.1015 * x_upper_1**4)
-        # for the second part will be flat:
-        y_upper_2 = np.ones(len(x_upper_2))*y_upper_1[-1]
+        # for the second part will be diagonal down to the TE:
+        y_upper_2 = np.ones(len(x_upper_2))*y_upper_1[-1] - (y_upper_1[-1]/(1-t_c))*(x_upper_2-t_c)
         # combine the two parts
         x_upper = np.concatenate((x_upper_1, x_upper_2))
         y_upper = np.concatenate((y_upper_1, y_upper_2))
-
         # ref NACA
         # define the x coordinates of the lower surface
         x_lower = np.linspace(0, 1, 100)
@@ -64,12 +63,11 @@ def custom_foil(t, t_c ,alpha=0, side='left'):
         x_lower_2 = np.linspace(t_c,1,50)
         # define the y coordinates of the upper surface
         y_lower_1 = -5*t * (0.2969 * np.sqrt(x_lower_1) - 0.1260 * x_lower_1 - 0.3516 * x_lower_1**2 + 0.2843 * x_lower_1**3 - 0.1015 * x_lower_1**4)
-        # for the second part will be flat:
-        y_lower_2 = np.ones(len(x_lower_2))*y_lower_1[-1]
+        # for the second part will be flat diagonal to the TE:
+        y_lower_2 = np.ones(len(x_lower_2))*y_lower_1[-1] - (y_lower_1[-1]/(1-t_c))*(x_lower_2-t_c)
         # combine the two parts
         x_lower = np.concatenate((x_lower_1, x_lower_2))
         y_lower = np.concatenate((y_lower_1, y_lower_2))
-
         # ref NACA
         # define the x coordinates of the lower surface
         x_upper = np.linspace(0, 1, 100)
