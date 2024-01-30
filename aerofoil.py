@@ -20,6 +20,19 @@ Using source panel method
 Aerofoil geometries:
 
 '''
+def nozzle_foil(alpha=0):
+    '''
+    a 1d line for each side of the nozzle
+    
+    '''
+
+    x = np.linspace(0, 1, 100)
+    # y is a diagonal line at angle alpha
+    y = x*np.tan(np.radians(alpha))
+
+    return x, y
+
+
 def custom_foil(t, t_c ,alpha=0, side='left'):
     '''
     Left (LE) to right (TE) will:
@@ -170,8 +183,9 @@ def naca_foil(t, alpha=0):
 
     return x_rot, y_rot
 
-
+############################################################################################################
 '''
+
 Calculation functions and classes
 
 '''
@@ -189,7 +203,7 @@ def rotate(x, y, alpha=0):
     return x_rot, y_rot
 
 # Define the panels
-def define_panels(x, y, N = 20, alpha=0.0):
+def define_panels(x, y, N = 20):
     '''
     Discretizes the geometry into panels using the 'cosine' method.
 
