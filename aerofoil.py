@@ -20,15 +20,20 @@ Using source panel method
 Aerofoil geometries:
 
 '''
-def nozzle_foil(alpha=0):
+def nozzle_foil(t, alpha=0):
     '''
-    a 1d line for each side of the nozzle
+    a 1d line for each side of the nozzle with thickness 
     
     '''
 
-    x = np.linspace(0, 1, 100)
+    x_upper = np.linspace(0, 1, 100)
     # y is a diagonal line at angle alpha
-    y = x*np.tan(np.radians(alpha))
+    y_upper = x_upper*np.tan(np.radians(alpha))
+    y_lower = y_upper - t
+
+    # make it all one surface anticlockwise
+    x = np.concatenate((x_upper[::-1], x_upper))
+    y = np.concatenate((y_upper[::-1], y_lower))
 
     return x, y
 
@@ -203,7 +208,7 @@ def rotate(x, y, alpha=0):
     return x_rot, y_rot
 
 # Define the panels
-def define_panels(x, y, N = 20):
+def define_panels(x, y, N = 20, dir=1):
     '''
     Discretizes the geometry into panels using the 'cosine' method.
 
@@ -220,6 +225,36 @@ def define_panels(x, y, N = 20):
         angle of attack
     
     '''
+    ################## ALTERNATIVE METHOD #####################
+    # Check the direction of the aerofoil shape
+    # direction = np.sign((x[-1] - x[0]) * (y[1] - y[0]) - (y[-1] - y[0]) * (x[1] - x[0]))
+
+    # If the direction is clockwise, reverse the order of the points
+    if dir<=0:
+        x = x[::-1]
+        y = y[::-1]
+
+    # # Compute the length of the aerofoil shape
+    # length = np.hypot(np.diff(x), np.diff(y)).sum()
+
+    # # Compute the length of each panel
+    # panel_length = length / N
+
+    # # Initialize the end points of the panels
+    # x_ends = np.empty(N + 1)
+    # y_ends = np.empty(N + 1)
+
+    # # Set the first end point to the first point of the aerofoil shape
+    # x_ends[0] = x[0]
+    # y_ends[0] = y[0]
+
+    # # Loop over all panels
+    # for i in range(1, N + 1):
+    #     # Compute the end point of the panel
+    #     x_ends[i] = x_ends[i - 1] + panel_length * np.cos(np.angle(x[i] - x[i - 1] + 1j * (y[i] - y[i - 1])))
+    #     y_ends[i] = y_ends[i - 1] + panel_length * np.sin(np.angle(x[i] - x[i - 1] + 1j * (y[i] - y[i - 1])))
+
+    ##################### END ############################
 
     R = (x.max() - x.min()) / 2  # radius of the circle
     x_center = (x.max() + x.min()) / 2  # x-coord of the center
@@ -279,6 +314,7 @@ def integral(x, y, panel, dxdz, dydz):
                 (y - (panel.ya + np.cos(panel.beta) * s)) * dydz) /
                 ((x - (panel.xa - np.sin(panel.beta) * s))**2 +
                 (y - (panel.ya + np.cos(panel.beta) * s))**2))
+    
     
     return integrate.quad(integrand, 0.0, panel.length)[0]
 
@@ -368,18 +404,19 @@ def tan_vel(panels, freestream):
     sigma = np.array([panel.sigma for panel in panels])
     vt = np.dot(A, sigma) + b
 
+
     for i, panel in enumerate(panels):
         panel.vt = vt[i]
 
-    # apply the kutta condition at the trailing and leading edge
-    panels[0].vt = 0.0
-    panels[N // 2].vt = 0.0
-    panels[-1].vt = 0.0
+    # # apply the kutta condition at the trailing and leading edge
+    # panels[0].vt = 0.0
+    # panels[N // 2].vt = 0.0
+    # panels[-1].vt = 0.0
 
-    # apply no-slip condition at the trailing and leading edge
-    panels[0].sigma = 0.0
-    panels[N // 2].sigma = 0.0
-    panels[-1].sigma = 0.0
+    # # apply no-slip condition at the trailing and leading edge
+    # panels[0].sigma = 0.0
+    # panels[N // 2].sigma = 0.0
+    # panels[-1].sigma = 0.0
 
 
 def cp(panels, freestream):
@@ -394,6 +431,9 @@ def cp(panels, freestream):
         Freestream conditions.
         
         '''
+    # if np.isnan(some_variable).any():
+    #     print('nan encountered in some_variable')
+
 
     for panel in panels:
         panel.cp = 1.0 - (panel.vt / freestream.u_inf)**2
