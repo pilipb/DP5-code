@@ -42,38 +42,24 @@ def power_calc(P=False, efficiency=False, A=False, V=False):
         else:
             missing_var.append(True)
 
-    print('\n-------------------------------------------\n')
     if missing_var.count(False) == 1:
         # calculate the missing variable
         if missing_var[0] == False:
-            print('\n---------Calculating Power---------')
             P = P_eq(efficiency, rho, A, V)
             print('Power = ', P)
         elif missing_var[1] == False:
-            print('\n---------Calculating efficiency---------')
             efficiency = efficiency_eq(P, rho, A, V)
             print('efficiency = ', efficiency)
         elif missing_var[2] == False:
-            print('\n---------Calculating Area---------')
             A = A_eq(P, efficiency, rho, V)
             print('Area = ', A)
         elif missing_var[3] == False:
-            print('\n---------Calculating Velocity---------')
             V = V_eq(P, efficiency, rho, A)
             print('Velocity = ', V)
-
-        print('\n-------------------------------------------')
-        print('All variables calculated.')
-        print('\nPower = ', P)
-        print('\nefficiency = ', efficiency)
-        print('\nArea = ', A)
-        print('\nVelocity = ', V)
-        print('\n-------------------------------------------')
 
         return P, efficiency, rho, A, V
     
     elif missing_var.count(False) == 2:
-        print('\n-------------------------------------------')
         # plot the missing variables
         # either P + efficiency, P + A, P + V, efficiency + A, efficiency + V, A + V
         # identify which variables are missing and replace with a range
@@ -111,18 +97,12 @@ def power_calc(P=False, efficiency=False, A=False, V=False):
                 plt.ylabel(input_names[int_vars[0]])
                 plt.show()
                 pass
-        print('\n-------------------------------------------')
 
         return P, efficiency, rho, A, V
     
     elif missing_var.count(False) == 0:
-        print('\n-------------------------------------------')
         print('All variables entered.')
-        print('\nPower = ', P)
-        print('\nefficiency = ', efficiency)
-        print('\nArea = ', A)
-        print('\nVelocity = ', V)
-        print('\n-------------------------------------------')
+ 
         return P, efficiency, rho, A, V
     
     else:
