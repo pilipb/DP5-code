@@ -1,6 +1,8 @@
 # import libraries and modules needed
 import os
-import numpy
+import numpy 
+import numpy as np
+import math
 from scipy import integrate, linalg
 from matplotlib import pyplot
 
@@ -285,6 +287,43 @@ def integral(x, y, panel, dxdk, dydk):
                  (y - (panel.ya + numpy.cos(panel.beta) * s))**2) )
     return integrate.quad(integrand, 0.0, panel.length)[0]
 
+def vel_field(panels, freestream, X, Y):
+    '''
+    Computes the velocity field on a given 2D mesh.
+    
+    Parameters
+    ----------
+    panels: 1D array of Panel objects
+        List of panels.
+    freestream: Freestream object
+        Freestream conditions.
+    X: 2D Numpy array of floats
+        x-coordinates of the mesh points.
+    Y: 2D Numpy array of floats
+        y-coordinates of the mesh points.
+        
+    Returns
+    -------
+    u: 2D Numpy array of floats
+        x-component of the velocity vector field.
+    v: 2D Numpy array of floats
+        y-component of the velocity vector field.
+        
+        '''
+    
+
+    # freestream contribution
+    u = freestream.u_inf * np.cos(freestream.alpha) * np.ones_like(X, dtype=float)
+    v = freestream.u_inf * np.sin(freestream.alpha) * np.ones_like(X, dtype=float)
+
+    # add the contribution from each source
+    vec_integral = np.vectorize(integral)
+    for panel in panels:
+        u += panel.sigma / (2.0 * math.pi) * vec_integral(X, Y, panel, 1.0, 0.0)
+        v += panel.sigma / (2.0 * math.pi) * vec_integral(X, Y, panel, 0.0, 1.0)
+
+    return u, v
+
 
 def define_panels(x, y, N=40, dir=1):
     """
@@ -307,9 +346,9 @@ def define_panels(x, y, N=40, dir=1):
     """
 
     # If the direction is clockwise, reverse the order of the points
-    if dir<=0:
-        x = x[::-1]
-        y = y[::-1]
+    # if dir<=0:
+    #     x = x[::-1]
+    #     y = y[::-1]
     
     R = (x.max() - x.min()) / 2.0  # circle radius
     x_center = (x.max() + x.min()) / 2.0  # x-coordinate of circle center
