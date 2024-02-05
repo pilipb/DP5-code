@@ -95,7 +95,7 @@ def power_calc(P=False, efficiency=False, A=False, V=False):
                 plt.title(f"{input_names[int_vars[0]]} vs {input_names[int_vars[1]]}")
                 plt.xlabel(input_names[int_vars[1]])
                 plt.ylabel(input_names[int_vars[0]])
-                plt.show()
+             
                 pass
 
         return P, efficiency, rho, A, V
