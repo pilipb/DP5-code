@@ -104,6 +104,34 @@ def custom_foil(t, t_c ,alpha=0, side='left'):
     return x_rot, y_rot
 
 
+def calc_naca_area(t):
+    '''
+    calculate the area of the aerofoil
+
+    Parameters
+    ----------
+    x: 1D array of floats
+        x-coordinate of the points defining the geometry
+    y: 1D array of floats
+        y-coordinate of the points defining the geometry
+
+    Returns
+    -------
+    A: float
+        area of the aerofoil
+    '''
+
+    # define the x coordinates of the upper surface
+    x_upper = np.linspace(0, 1, 100)
+    # define the y coordinates of the upper surface
+    y_upper = 5*t * (0.2969 * np.sqrt(x_upper) - 0.1260 * x_upper - 0.3516 * x_upper**2 + 0.2843 * x_upper**3 - 0.1015 * x_upper**4)
+
+    # calculate the area
+    A = np.trapz(y_upper, x_upper)
+
+    return A*2
+
+
 
 
 
