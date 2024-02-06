@@ -1,5 +1,6 @@
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 def debris_calc(impact_toughness, thickness, u):
     '''
@@ -66,13 +67,64 @@ def torque(river_vel, runner_diameter, r_drum, L, RPM):
     rho = 1000 # Density of fresh water (kg/m^3)
     CD = 1.28 # Drag coefficient
 
+    rel_vel = calc_rel_vel(river_vel, r_drum, RPM)
+
+    T = 0.5 * rho * rel_vel**2 * A * CD * D
+    return T
+
+def power(river_vel, runner_diameter, r_drum, L, RPM):
+    '''
+    calculates the power produced by the blade (W)
+
+    Parameters:
+    ----------
+    river_vel : float
+        River velocity (m/s)
+    runner_diameter : float
+        Diameter of the runner (m)
+    r_drum : float
+        Radius of the drum (m)
+    L : float
+        width of a single blade (m) (assume half turbine width)
+    RPM : float
+        Rotations per minute of the drum
+
+    Returns:
+    -------
+    P : float
+        Power produced by the blade (W)
+    '''
+    # power = torque * angular velocity
+    T = torque(river_vel, runner_diameter, r_drum, L, RPM)
+    angular_vel = RPM * 2 * np.pi / 60 # Angular velocity (rad/s)
+    P = T * angular_vel
+
+    return P
+
+def calc_rel_vel(river_vel, r_drum, RPM):
+    '''
+    calculates the relative velocity of the blade to the water (m/s)
+
+    Parameters:
+    ----------
+    river_vel : float
+        River velocity (m/s)
+    r_drum : float
+        Radius of the drum (m) or radius of interest
+    RPM : float
+        Rotations per minute of the drum
+
+    Returns:
+    -------
+    rel_vel : float
+        Relative velocity of the blade to the water (m/s)
+    '''
     # Calculate relative velocity (at the root of the blade):
     angular_vel = RPM * 2 * np.pi / 60 # Angular velocity (rad/s)
     blade_vel = angular_vel * r_drum # Blade velocity (m/s)
     rel_vel = river_vel - blade_vel # Relative velocity (m/s)
 
-    T = 0.5 * rho * rel_vel**2 * A * CD * D
-    return T
+    return rel_vel
 
 def minimum_blade_thickness(sigma_y, river_vel, L, r_drum, rho=1000, RPM=40, CD=1.28):
     '''

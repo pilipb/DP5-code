@@ -20,6 +20,35 @@ def V_eq(P, efficiency, rho, A):
 
 
 def power_calc(P=False, efficiency=False, A=False, V=False):
+    '''
+    
+    Parameters:
+    ----------
+    P : float
+        Power (W)
+    efficiency : float
+        Efficiency (decimal)
+    A : float
+        Area (m^2)
+    V : float
+        Velocity (m/s)
+
+    Returns:
+    -------
+    P : float
+        Power (W)
+    efficiency : float
+        Efficiency (decimal)
+    rho : float
+        Density of water (kg/m^3)
+    A : float
+        Area (m^2)
+    V : float
+        Velocity (m/s)
+
+
+
+        '''
     # if one variable is missing, calculate it
     # if 2 variables are missing return a plot of the missing variables
     # if 3 or more missing, return an error
