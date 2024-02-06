@@ -4,7 +4,9 @@ import numpy
 import numpy as np
 import math
 from scipy import integrate, linalg
-from matplotlib import pyplot
+from matplotlib import pyplot as plt
+
+from aerofoil import naca_foil
 
 class Panel:
     """
@@ -381,3 +383,149 @@ def define_panels(x, y, N=40, dir=1):
         panels[i] = Panel(x_ends[i], y_ends[i], x_ends[i + 1], y_ends[i + 1])
     
     return panels
+
+
+
+
+def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, plot=False):
+    '''
+    Complete function combining the potential flow solver to calculate the mean velocity between the pontoons
+    Author: Phil Blecher. Built on framework by Lorena Barba. Barba, Lorena A., and Mesnard, Olivier (2019). Aero Python: classical aerodynamics of potential flow using Python. 
+    Journal of Open Source Education, 2(15), 45, https://doi.org/10.21105/jose.00045
+
+    Note: pontoon shape default is NACA 00xx
+
+    Parameters
+    ----------
+    foil_width : float
+        Width of the foil (m)
+    turbine_width : float
+        Width of the turbine (m) (between the inside edges of the pontoons)
+    turbine_length : float
+        Length of the turbine (m)
+    river_vel : float
+        Freestream river velocity (m/s)
+
+    Returns
+    -------
+    vel : float
+        Mean velocity between the pontoons (m/s)
+
+    
+    '''
+
+    # create 2 pontoons
+    x,y = naca_foil(foil_width)
+    x2,y2 = naca_foil(foil_width)
+
+    # scale the aerofoil length
+    x = x * turbine_length
+    x2 = x2 * turbine_length
+
+    # generate the panels
+    aerofoils = np.empty(2, dtype=object)
+    coords = [[x,y],[x2,y2]]
+    # discretise the aerofoil into panels
+    for i,aerofoil in enumerate(coords):
+        aerofoils[i] = define_panels(aerofoil[0],aerofoil[1], N=40, dir=i) # flip the direction in which the panels generated!
+
+    # now move the aerofoils to the correct position
+    for panel in aerofoils[1]:
+        panel.ya = panel.ya + turbine_width + foil_width
+        panel.yb = panel.yb + turbine_width + foil_width
+        panel.yc = panel.yc + turbine_width + foil_width
+
+    y2 = y2 + turbine_width + foil_width 
+
+    # define the freestream conditions
+    freestream = Freestream(river_vel,0) # freestream velocity, angle of attack
+
+    # compute the source and vortex contribution matrices
+    for i,p in enumerate(aerofoils):  
+        A_source = source_contribution_normal(p)
+        B_vortex = vortex_contribution_normal(p)
+
+        A = build_singularity_matrix(A_source, B_vortex)
+        b = build_freestream_rhs(p, freestream)
+
+        # solve for singularity strengths
+        strengths = numpy.linalg.solve(A, b)
+
+        # store source strength on each panel
+        for i , panel in enumerate(p):
+            panel.sigma = strengths[i]
+            
+        # store circulation density
+        gamma = strengths[-1]
+        # tangential velocity at each panel center.
+        compute_tangential_velocity(p, freestream, gamma, A_source, B_vortex)
+        # surface pressure coefficient
+        compute_pressure_coefficient(p, freestream)
+
+    # compute the velocity field on the mesh grid
+    # define velocity field
+    nx, ny = 30, 30
+    x_start, x_end = -0.3, turbine_length + 0.3
+    y_start, y_end = - 0.3 - foil_width, turbine_width + 2*foil_width + 0.3
+    x_ = np.linspace(x_start, x_end, nx)
+    y_ = np.linspace(y_start, y_end, ny)
+    X, Y = np.meshgrid(x_, y_)
+
+    # compute the velocity field on the mesh grid
+    u_tot = np.zeros((ny, nx))
+    v_tot = np.zeros((ny, nx))
+
+    u1, v1 = vel_field(aerofoils[0], freestream, X, Y)
+    u2, v2 = vel_field(aerofoils[1], freestream, X, Y)
+
+    u_tot = u2 + u1 
+    v_tot = v2  + v1
+    u_tot = u_tot / 2
+    v_tot = v_tot / 2
+
+    # compute the mean velocity between the pontoons
+    # the area of interest is 0.3 of the way along the length of the turbine (the thickest part of the turbine)
+    # and the mean of the velocities between [foil_width/2, turbine_width + foil_width/2]
+    # in the net velocity field
+    x_point = turbine_length*0.3
+    y_points = [foil_width/2, turbine_width + foil_width/2]
+
+    up_tot=0
+    vp_tot=0
+    num_points = 10 # number of points to average over
+    for i,panels in enumerate(aerofoils):
+        for y_point in np.linspace(y_points[0], y_points[1], num_points):
+            u, v = vel_field(panels, freestream, x_point, y_point)
+            up_tot += u
+            vp_tot += v
+    # normalize the velocity field
+    up_tot /= 2*num_points 
+    vp_tot /= 2*num_points
+
+    # find the net velocity at this point
+    vel = np.sqrt(up_tot**2 + vp_tot**2)
+    
+
+    if plot:
+        plt.figure()
+        plt.axis('equal')
+        for panels in aerofoils:
+            plt.fill([panel.xc for panel in panels],
+                [panel.yc for panel in panels],
+                color='k', linestyle='solid', linewidth=2, zorder=2)
+            
+        # add contours of velocity
+        plt.contourf(X, Y, np.sqrt(u_tot**2 + v_tot**2), cmap='jet', levels=100)
+        cbar = plt.colorbar(orientation='vertical', shrink=0.5, pad=0.1)
+        cbar.set_label('Velocity magnitude', fontsize=16)
+
+        plt.grid()
+        plt.title('Flow around two pontoons', fontsize=16)
+        plt.xlim(x_start, x_end)
+        plt.ylim(y_start, y_end)
+        plt.xlabel('x', fontsize=16)
+        plt.ylabel('y', fontsize=16)
+        plt.show()
+
+
+    return vel
