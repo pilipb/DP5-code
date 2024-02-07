@@ -94,12 +94,22 @@ def power(river_vel, runner_diameter, r_drum, L, RPM):
     P : float
         Power produced by the blade (W)
     '''
-    # power = torque * angular velocity
-    T = torque(river_vel, runner_diameter, r_drum, L, RPM)
-    angular_vel = RPM * 2 * np.pi / 60 # Angular velocity (rad/s)
-    P = T * angular_vel
+    # Define variables
+    H = (runner_diameter/2) - r_drum # Length of blade from drum to tip (m)
+    A = L*H*2 # Area of two blades in contact with water (m^2)
+    D = r_drum + H/2 # Distacne from drum to center of blade (m)
 
-    return P
+    # Define constants
+    rho = 1000 # Density of fresh water (kg/m^3)
+    CD = 1.28 # Drag coefficient
+
+    # Calculate relative velocity (at the root of the blade):
+    angular_vel = RPM * 2 * np.pi / 60 # Angular velocity (rad/s)
+    blade_vel = angular_vel * r_drum # Blade velocity (m/s)
+    rel_vel = river_vel - blade_vel # Relative velocity (m/s)
+
+    power = 0.5 * rho * rel_vel**2 * A * CD * D * angular_vel
+    return power
 
 def calc_rel_vel(river_vel, r_drum, RPM):
     '''

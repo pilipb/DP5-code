@@ -75,16 +75,16 @@ def power_calc(P=False, efficiency=False, A=False, V=False):
         # calculate the missing variable
         if missing_var[0] == False:
             P = P_eq(efficiency, rho, A, V)
-            print('Power = ', P)
+            # print('Power = ', P)
         elif missing_var[1] == False:
             efficiency = efficiency_eq(P, rho, A, V)
-            print('efficiency = ', efficiency)
+            # print('efficiency = ', efficiency)
         elif missing_var[2] == False:
             A = A_eq(P, efficiency, rho, V)
-            print('Area = ', A)
+            # print('Area = ', A)
         elif missing_var[3] == False:
             V = V_eq(P, efficiency, rho, A)
-            print('Velocity = ', V)
+            # print('Velocity = ', V)
 
         return P, efficiency, rho, A, V
     
@@ -112,7 +112,7 @@ def power_calc(P=False, efficiency=False, A=False, V=False):
         # Iterate over the dictionary
         for indices, equation in plot_equations.items():
             if int_vars == list(indices):
-                print('\nMissing variables: %s, %s'  %( input_names[int_vars[0]], input_names[int_vars[1]] ))
+                # print('\nMissing variables: %s, %s'  %( input_names[int_vars[0]], input_names[int_vars[1]] ))
                 # print("Plotting {equation}")
                 
                 y = equation(vars[0], vars[1], vars[2], vars[3])
@@ -130,7 +130,7 @@ def power_calc(P=False, efficiency=False, A=False, V=False):
         return P, efficiency, rho, A, V
     
     elif missing_var.count(False) == 0:
-        print('All variables entered.')
+        # print('All variables entered.')
  
         return P, efficiency, rho, A, V
     
