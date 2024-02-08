@@ -2,6 +2,30 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def pontoon_height_calc(pontoon_area, turbine_mass):
+    '''
+    calculates the height of the pontoon required to support the turbine
+    authored by: Phil Blecher
+
+    Parameters:
+    ----------
+    pontoon_area : float
+        Area of the pontoon (m^2)
+    turbine_mass : float
+        Mass of the turbine (kg)
+
+    Returns:
+    -------
+    depth : float
+        depth of the pontoon required to support the turbine (m)
+    '''
+    # Define constants
+    rho = 1000 # Density of water (kg/m^3)
+
+    depth = turbine_mass / (pontoon_area * rho)
+
+    return depth
+
 def debris_calc(impact_toughness, thickness, u):
     '''
     calculates the minimum worst case size of debris that can be withstood by the blade
