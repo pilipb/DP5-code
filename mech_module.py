@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 def pontoon_height_calc(pontoon_area, turbine_mass):
     '''
-    calculates the height of the pontoon required to support the turbine
+    calculates the height of the each of two pontoons required to support the turbine
     authored by: Phil Blecher
 
     Parameters:
@@ -24,7 +24,7 @@ def pontoon_height_calc(pontoon_area, turbine_mass):
 
     depth = turbine_mass / (pontoon_area * rho)
 
-    return depth
+    return depth/2
 
 def debris_calc(impact_toughness, thickness, u):
     '''
