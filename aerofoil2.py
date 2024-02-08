@@ -394,6 +394,7 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, plot
     Journal of Open Source Education, 2(15), 45, https://doi.org/10.21105/jose.00045
 
     Note: pontoon shape default is NACA 00xx
+    COM at 0.3994 chord
 
     Parameters
     ----------
@@ -484,10 +485,10 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, plot
     v_tot = v_tot / 2
 
     # compute the mean velocity between the pontoons
-    # the area of interest is 0.3 of the way along the length of the turbine (the thickest part of the turbine)
+    # the area of interest is 0.3 or 0.3994 of the way along the length of the turbine (the thickest part of the turbine)
     # and the mean of the velocities between [foil_width/2, turbine_width + foil_width/2]
     # in the net velocity field
-    x_point = turbine_length*0.3
+    x_point = turbine_length*0.3994
     y_points = [foil_width/2, turbine_width + foil_width/2]
 
     up_tot=0
