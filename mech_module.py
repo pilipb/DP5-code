@@ -133,6 +133,14 @@ def power(river_vel, runner_diameter, r_drum, L, RPM):
     rel_vel = river_vel - blade_vel # Relative velocity (m/s)
 
     power = 0.5 * rho * rel_vel**2 * A * CD * D * angular_vel
+
+    # calculate the loss due to cupping ( assuming that the cupping is a pyramid shape)
+    # vol = ((L*runner_diameter/2) * bucket_depth)/3
+    # cup_rad = (0.25*runner_diameter/2 + r_drum)
+    # cup_loss = vol * cup_rad * rho * angular_vel
+    # power -= cup_loss    
+
+
     return power
 
 def calc_rel_vel(river_vel, r_drum, RPM):
