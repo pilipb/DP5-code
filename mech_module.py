@@ -2,6 +2,51 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def debris_angle(u, D):
+    '''
+    calculates the maximum angle of debris defenders to send debris under the turbine
+
+    Based on:
+    0.5 * rho * u^2 * A * CD * cos(theta) > rho * g * V * sin(theta)
+    where:
+    rho = density of water (kg/m^3)
+    u = velocity of the blade (m/s)
+    A = area of the blade (m^2)
+    CD = drag coefficient
+    theta = angle of the debris defender (radians)
+    g = acceleration due to gravity (m/s^2)
+    V = volume of the debris (m^3)
+
+    Rearranging:
+    tan(theta) < (0.5 * u^2 * CD) / (g * D)
+    where:
+    D = V/A = depth of the debris in the water (m)
+
+    Parameters:
+    ----------
+    u : float
+        Velocity of the river (m/s)
+    D : float
+        Depth of the debris in the water (m)
+
+    Returns:
+    -------
+    theta : float   
+        Maximum angle of debris defenders to send debris under the turbine (radians)
+    
+    '''
+
+    # Define constants
+    rho = 1000 # Density of water (kg/m^3)
+    c_d = 1 # Drag coefficient of a bluff body
+    g = 9.81 # Acceleration due to gravity (m/s^2)
+
+    tan_theta = (0.5 * u**2 * c_d) / (g * D)
+    theta = np.arctan(tan_theta)
+    theta = np.degrees(theta)
+    return theta
+
+
 def pontoon_height_calc(pontoon_area, turbine_mass):
     '''
     calculates the height of the each of two pontoons required to support the turbine
