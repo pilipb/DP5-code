@@ -3,7 +3,7 @@ import svgwrite
 from aerofoil import naca_foil
 
 # make a naca foil
-x,y = naca_foil(0.3,0)
+x,y = naca_foil(0.25,0)
 
 # move the foil to the right
 x = [i+0.5 for i in x]
@@ -11,7 +11,7 @@ x = [i+0.5 for i in x]
 y = [i+0.5 for i in y]
 
 # scale to
-size = 100 # cm
+size = 30 # cm
 x = [i*size for i in x]
 y = [i*size for i in y]
 
