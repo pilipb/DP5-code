@@ -2,32 +2,34 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def debris_angle(u, D):
+def debris_angle(u, l, rho_debris=580):
     '''
     calculates the maximum angle of debris defenders to send debris under the turbine
 
     Based on:
-    0.5 * rho * u^2 * A * CD * cos(theta) > rho * g * V * sin(theta)
+    0.5 * rho * u^2 * A * CD * cos(theta) > (m * g - rho * g * V ) * sin(theta)
     where:
     rho = density of water (kg/m^3)
     u = velocity of the blade (m/s)
     A = area of the blade (m^2)
     CD = drag coefficient
     theta = angle of the debris defender (radians)
+    m = mass of the debris (kg)
     g = acceleration due to gravity (m/s^2)
     V = volume of the debris (m^3)
 
     Rearranging:
-    tan(theta) < (0.5 * u^2 * CD) / (g * D)
-    where:
-    D = V/A = depth of the debris in the water (m)
+    tan(theta) < (u^2 * rho * CD) / (2 * g * l * (rho_debris -rho))
+    l = V/A = length of the prism of debris (e.g. cylinder) (m)
 
     Parameters:
     ----------
     u : float
         Velocity of the river (m/s)
-    D : float
-        Depth of the debris in the water (m)
+    l : float
+        Length of the prism of debris (e.g. cylinder) (m)
+    rho_debris : float (mean tropical wood density = 580 kg/m^3 https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2015RG000514 )
+        Density of the debris (kg/m^3)
 
     Returns:
     -------
@@ -41,7 +43,7 @@ def debris_angle(u, D):
     c_d = 1 # Drag coefficient of a bluff body
     g = 9.81 # Acceleration due to gravity (m/s^2)
 
-    tan_theta = (0.5 * u**2 * c_d) / (g * D)
+    tan_theta = (u**2 * rho * c_d) / (2 * g * l * (rho_debris - rho))
     theta = np.arctan(tan_theta)
     theta = np.degrees(theta)
     return theta
