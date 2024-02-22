@@ -6,7 +6,7 @@ import math
 from scipy import integrate, linalg
 from matplotlib import pyplot as plt
 
-from aerofoil import naca_foil
+from aerofoil import naca_foil, defence_block
 
 class Panel:
     """
@@ -387,7 +387,7 @@ def define_panels(x, y, N=40, dir=1):
 
 
 
-def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, plot=False):
+def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid=False, grid_offset = 0.2, block_t=0.1, block_w=0.005, block_spacing=0.2,  plot=False):
     '''
     Complete function combining the potential flow solver to calculate the mean velocity between the pontoons
     Author: Phil Blecher. Built on framework by Lorena Barba. Barba, Lorena A., and Mesnard, Olivier (2019). Aero Python: classical aerodynamics of potential flow using Python. 
@@ -414,7 +414,6 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, plot
 
     
     '''
-
     # create 2 pontoons
     x,y = naca_foil(foil_width)
     x2,y2 = naca_foil(foil_width)
@@ -437,6 +436,42 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, plot
         panel.yc = panel.yc + turbine_width + foil_width
 
     y2 = y2 + turbine_width + foil_width 
+
+    ###### TODO: add defense grid
+
+    if grid:
+
+        '''
+        generate a grid of defense blocks. Each block has dimensions block_t x block_w. The blocks are spaced block_spacing apart between the centres of the pontoons
+        
+        '''
+        # create the blocks
+        number_of_blocks = int((turbine_width + foil_width) / block_spacing)
+        blocks = np.empty(number_of_blocks, dtype=object)
+        for i in range(number_of_blocks):
+            blocks[i] = defence_block(block_t, block_w)
+
+        # print('blocks 1: ' + str(blocks[0]))
+        # generate the panels for the blocks
+        block_panels = np.empty(number_of_blocks, dtype=object)
+        for i,block in enumerate(blocks):
+            block_panels[i] = define_panels(block[0],block[1], N=20, dir=1)
+        # print('block panels 1: ' + str(block_panels[0]))
+        # move the blocks to the correct position
+        for i,panels in enumerate(block_panels):
+            for panel in panels:
+                panel.ya = panel.ya + block_spacing*i
+                panel.yb = panel.yb + block_spacing*i
+                panel.yc = panel.yc + block_spacing*i
+
+                panel.xa = panel.xa - grid_offset
+                panel.xb = panel.xb - grid_offset
+                panel.xc = panel.xc - grid_offset
+
+        # add the blocks to the aerofoils
+        aerofoils = np.append(aerofoils, block_panels)
+
+    print('num things: ' + str(len(aerofoils)))
 
     # define the freestream conditions
     freestream = Freestream(river_vel,0) # freestream velocity, angle of attack
@@ -465,9 +500,9 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, plot
 
     # compute the velocity field on the mesh grid
     # define velocity field
-    nx, ny = 30, 30
-    x_start, x_end = -0.3, turbine_length + 0.3
-    y_start, y_end = - 0.3 - foil_width, turbine_width + 2*foil_width + 0.3
+    nx, ny = 60, 60
+    x_start, x_end = -0.5, turbine_length + 0.5
+    y_start, y_end = - 0.5 - foil_width, turbine_width + 2*foil_width + 0.5
     x_ = np.linspace(x_start, x_end, nx)
     y_ = np.linspace(y_start, y_end, ny)
     X, Y = np.meshgrid(x_, y_)
@@ -476,13 +511,14 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, plot
     u_tot = np.zeros((ny, nx))
     v_tot = np.zeros((ny, nx))
 
-    u1, v1 = vel_field(aerofoils[0], freestream, X, Y)
-    u2, v2 = vel_field(aerofoils[1], freestream, X, Y)
+    for panels in aerofoils:
+        u_tot_, v_tot_ = vel_field(panels, freestream, X, Y)
+        u_tot += u_tot_
+        v_tot += v_tot_
 
-    u_tot = u2 + u1 
-    v_tot = v2  + v1
-    u_tot = u_tot / 2
-    v_tot = v_tot / 2
+    # average
+    u_tot /= len(aerofoils)
+    v_tot /= len(aerofoils)
 
     # compute the mean velocity between the pontoons
     # the area of interest is 0.3 or 0.3994 of the way along the length of the turbine (the thickest part of the turbine)
