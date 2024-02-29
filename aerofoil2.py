@@ -500,9 +500,9 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid
 
     # compute the velocity field on the mesh grid
     # define velocity field
-    nx, ny = 60, 60
-    x_start, x_end = -0.5, turbine_length + 0.5
-    y_start, y_end = - 0.5 - foil_width, turbine_width + 2*foil_width + 0.5
+    nx, ny = 30, 30 # increase for grid
+    x_start, x_end = -0.4, turbine_length + 0.2
+    y_start, y_end = - 0.1 - foil_width, turbine_width + 2*foil_width + 0.1
     x_ = np.linspace(x_start, x_end, nx)
     y_ = np.linspace(y_start, y_end, ny)
     X, Y = np.meshgrid(x_, y_)
@@ -536,8 +536,8 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid
             up_tot += u
             vp_tot += v
     # normalize the velocity field
-    up_tot /= 2*num_points 
-    vp_tot /= 2*num_points
+    up_tot /= len(aerofoils)*num_points 
+    vp_tot /= len(aerofoils)*num_points
 
     # find the net velocity at this point
     vel = np.sqrt(up_tot**2 + vp_tot**2)
