@@ -125,7 +125,7 @@ def custom_foil(t, t_c ,alpha=0, side='left'):
     return x_rot, y_rot
 
 
-def calc_naca_area(t):
+def calc_naca_area(t, l = 1.0):
     '''
     calculate the area of the aerofoil
 
@@ -150,7 +150,7 @@ def calc_naca_area(t):
     # calculate the area
     A = np.trapz(y_upper, x_upper)
 
-    return A*2
+    return A*2*l
 
 
 
