@@ -1,0 +1,37 @@
+# Title:                 GRDC STATION DATA FILE
+#                        --------------
+# Format:                DOS-ASCII
+# Field delimiter:       ;
+# missing values are indicated by -999.000
+#
+# file generation date:  2024-02-29
+#
+# GRDC-No.:              2854750
+# River:                 PONNAIYAR RIVER
+# Station:               TIRUKOILUR ANICUT
+# Country:               IN
+# Latitude (DD):       11.98
+# Longitude (DD):      79.27
+# Catchment area (km²):      12888.0
+# Altitude (m ASL):        83.0
+# Next downstream station:      -
+# Remarks:               
+# Owner of original data: Initial dataset collected in the framework of the First GARP Global Experiment (FGGE)
+#************************************************************
+#
+# Data Set Content:      MEAN DAILY DISCHARGE (Q)
+#                        --------------------
+# Unit of measure:                  m³/s
+# Time series:            - 
+# No. of years:          
+# Last update:           2018-05-25
+#
+# Table Header:
+#     YYYY-MM-DD - Date
+#     hh:mm      - Time
+#     Value   - original (provided) data
+#************************************************************
+#
+# Data lines: 0
+# DATA
+YYYY-MM-DD;hh:mm; Value
