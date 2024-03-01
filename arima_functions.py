@@ -56,11 +56,18 @@ def process_data(metadata, data):
 def downsample(data):
     data['Date'] = pd.to_datetime(data['Date'])
     data = data.set_index('Date')
-    data['Sampled'] = data['Value'].resample('5D').mean()
+
+    # if there is a Velocity column, sample it
+    if 'Velocity' in data.columns:
+        data['Sampled'] = data['Velocity'].resample('5D').mean()
+    else: 
+        data['Sampled'] = data['Value'].resample('5D').mean()
+
     return data
 
 
 def split_data(data, split=0.8):
+
     train = data['Sampled'].iloc[:int(len(data)*split)]
     test = data['Sampled'].iloc[int(len(data)*split):]
     return train, test
