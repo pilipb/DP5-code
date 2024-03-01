@@ -6,15 +6,15 @@
 #
 # file generation date:  2024-03-01
 #
-# GRDC-No.:              1472305
-# River:                 VICTORIA NILE
-# Station:               JINJA
-# Country:               UG
-# Latitude (DD):       0.43
-# Longitude (DD):      33.2
-# Catchment area (km²):      -999.0
-# Altitude (m ASL):        -999.00
-# Next downstream station:      1472300
+# GRDC-No.:              2646100
+# River:                 GANGES RIVER
+# Station:               PAKSEY
+# Country:               BD
+# Latitude (DD):       24.08
+# Longitude (DD):      89.03
+# Catchment area (km²):      846900.0
+# Altitude (m ASL):        14.0
+# Next downstream station:      -
 # Remarks:               
 # Owner of original data: Initial dataset collected in the framework of the First GARP Global Experiment (FGGE)
 #************************************************************
@@ -24,7 +24,7 @@
 # Unit of measure:                  m³/s
 # Time series:            - 
 # No. of years:          
-# Last update:           2018-05-25
+# Last update:           2018-05-29
 #
 # Table Header:
 #     YYYY-MM-DD - Date
