@@ -181,11 +181,17 @@ def power(river_vel, runner_diameter, r_drum, L, RPM):
 
     power = 0.5 * rho * rel_vel**2 * A * CD * D * angular_vel
 
+    ############## GET VALUES
     # calculate the loss due to cupping ( assuming that the cupping is a pyramid shape)
     # vol = ((L*runner_diameter/2) * bucket_depth)/3
     # cup_rad = (0.25*runner_diameter/2 + r_drum)
     # cup_loss = vol * cup_rad * rho * angular_vel
     # power -= cup_loss    
+
+    # add the effect of losses due to small holes for the water to escape
+    # A = 0.01 # area of the hole per blade(m^2)
+    # loss = 0.5 * rho * rel_vel**2 * A * CD * D * angular_vel
+    # power -= loss
 
 
     return power
