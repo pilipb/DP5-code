@@ -7,6 +7,7 @@ import warnings
 
 import requests
 import pandas as pd
+import time
 
 # script for returning elevation from lat, long, based on open elevation data
 # which in turn is based on SRTM
@@ -15,8 +16,44 @@ def get_elevation(lat, long):
              f'?locations={lat},{long}')
     r = requests.get(query).json()  # json object, various ways you can extract value
     # one approach is to use pandas json functionality:
-    elevation = pd.json_normalize(r, 'results')['elevation'].values[0]
+    try:
+        elevation = pd.json_normalize(r, 'results')['elevation'].values[0]
+    except KeyError as e:
+        print(f"Unable to normalize json: {e} Likely too many requests. Sleeping for 1 second and trying again.")
+        time.sleep(1)
+        r = requests.get(query).json()
+        elevation = pd.json_normalize(r, 'results')['elevation'].values[0]
+
     return elevation
+
+# a function that checks pairs of points at a radius around the original lat,lon and returns the maximum slope
+def calc_slope(lat, lon, radius):
+    if isinstance(lat, str):
+        lat = float(lat)
+    if isinstance(lon, str):
+        lon = float(lon)
+    # generate a locus of points around the original lat, lon in the N,NE,E,SE,S,SW,W,NW directions
+    # calculate the slope between the original point and the new point
+    # return the maximum slope
+    lat1 = [lat, lat + radius, lat + radius, lat + radius, lat, lat - radius, lat - radius, lat - radius]
+    lon1 = [lon, lon, lon + radius, lon - radius, lon + radius, lon, lon - radius, lon + radius]
+
+    lat2 = [lat + radius, lat + radius, lat, lat - radius, lat - radius, lat - radius, lat, lat + radius]
+    lon2 = [lon, lon + radius, lon + radius, lon + radius, lon, lon - radius, lon - radius, lon - radius]
+
+    n_points = len(lat1)
+
+    max_slope = 0
+    for i in range(n_points):
+        
+        upstream = get_elevation(lat1[i], lon1[i])
+        downstream = get_elevation(lat2[i], lon2[i])
+        dist = np.sqrt((lat1[i] - lat2[i])**2 + (lon1[i] - lon2[i])**2 ) * 111139
+        slope = abs(downstream - upstream)/dist
+        if slope > max_slope:
+            max_slope = slope
+
+    return max_slope
 
 # Function to read the data from the file
 def read_data(file_path):
