@@ -8,6 +8,8 @@ import warnings
 import requests
 import pandas as pd
 import time
+from OSGridConverter import grid2latlong
+
 
 # script for returning elevation from lat, long, based on open elevation data
 # which in turn is based on SRTM
@@ -79,6 +81,79 @@ def read_data(file_path):
                 data.append(line.strip().split(';'))
 
     return metadata, data
+
+def read_data_from_csv(file_path):
+    '''
+    file in form:
+    file,timestamp,2024-03-05T18:11:35
+    database,id,nrfa-public-30
+    database,name,UK National River Flow Archive
+    station,id,53001
+    station,name,Avon at Melksham
+    station,gridReference,ST9029864102
+    station,descriptionSummary,Velocity area station.
+    station,descriptionGeneral,Velocity area station. Closed in 1980.
+    station,descriptionStationHydrometry,Cableway present.
+    station,descriptionCatchment,Gaugings completed in 1975/76 (upon which the recent Flood Studies high flows are based) suggest that archived dmfs appreciably underestimate the true discharge.
+    dataType,id,gdf
+    dataType,name,Gauged Daily Flow
+    dataType,parameter,Flow
+    dataType,units,m3/s
+    dataType,period,day (P1D)
+    dataType,measurementType,Mean
+    data,first,1953-10-01
+    data,last,1980-06-30
+    1953-10-01,5.748
+    1953-10-02,5.465
+    1953-10-03,4.446
+    1953-10-04,4.078
+    
+    
+    '''
+
+
+    metadata = {}
+    data = []
+
+    with open(file_path, 'r', encoding='latin-1') as file:
+        for line in file:
+            if line.startswith('file'):
+                continue
+            elif line.startswith('database'):
+                continue
+            elif line.startswith('station'):
+                data.append(line.strip().split(','))
+                continue
+            elif line.startswith('dataType'):
+                continue
+            elif line.startswith('data'):
+                continue
+            else:
+                data.append(line.strip().split(','))
+    # print(data)
+    metadata['Grid Reference'] = str(data[2][2])
+    metadata['River'] = data[1][2]
+    l = grid2latlong(metadata['Grid Reference'])
+    metadata['Latitude (DD)'] = l.latitude
+    metadata['Longitude (DD)'] = l.longitude
+
+    return metadata, data[10:]
+
+def process_data_from_csv(metadata, data):
+    # Extract metadata
+    station_info = {
+        'River': metadata.get('River'),
+        'Grid Reference': metadata.get('Grid Reference'),
+        'Latitude (DD)': metadata.get('Latitude (DD)'),
+        'Longitude (DD)': metadata.get('Longitude (DD)'),
+    }
+
+    # Extract data
+    parsed_data = [{'Date': row[0], 'Value': float(row[1]) if row[1] != '--:--' else None} for row in data]
+    parsed_data = pd.DataFrame(parsed_data)
+    parsed_data['Value'] = parsed_data['Value'].replace(-999.0, np.nan)
+    return station_info, parsed_data
+
 
 # Function to process the data
 def process_data(metadata, data):
