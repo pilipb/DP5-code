@@ -1,0 +1,37 @@
+# Title:                 GRDC STATION DATA FILE
+#                        --------------
+# Format:                DOS-ASCII
+# Field delimiter:       ;
+# missing values are indicated by -999.000
+#
+# file generation date:  2024-03-07
+#
+# GRDC-No.:              3206500
+# River:                 RIO APURE
+# Station:               SAN FERNANDO
+# Country:               VE
+# Latitude (DD):       7.9
+# Longitude (DD):      -67.43
+# Catchment area (km²):      114500.0
+# Altitude (m ASL):        46.0
+# Next downstream station:      3206700
+# Remarks:               
+# Owner of original data: Initial dataset collected in the framework of the First GARP Global Experiment (FGGE)
+#************************************************************
+#
+# Data Set Content:      MEAN DAILY DISCHARGE (Q)
+#                        --------------------
+# Unit of measure:                  m³/s
+# Time series:            - 
+# No. of years:          
+# Last update:           2018-06-01
+#
+# Table Header:
+#     YYYY-MM-DD - Date
+#     hh:mm      - Time
+#     Value   - original (provided) data
+#************************************************************
+#
+# Data lines: 0
+# DATA
+YYYY-MM-DD;hh:mm; Value
