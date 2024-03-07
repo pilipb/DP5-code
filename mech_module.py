@@ -2,6 +2,27 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def froude_number(velocity, depth, g=9.81):
+    '''
+    calculates the Froude number of the river
+
+    Parameters:
+    ----------
+    velocity : float
+        Velocity of the river (m/s)
+    depth : float
+        Depth of the river (m)
+    g : float
+        Acceleration due to gravity (m/s^2)
+
+    Returns:
+    -------
+    froude : float
+        Froude number of the river
+    '''
+    froude = velocity / np.sqrt(g * depth)
+    return froude
+
 def debris_angle(u, l, rho_debris=580):
     '''
     calculates the maximum angle of debris defenders to send debris under the turbine
