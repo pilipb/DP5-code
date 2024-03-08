@@ -32,7 +32,7 @@ def debris_angle(u, l, rho_debris=580):
     where:
     rho = density of water (kg/m^3)
     u = velocity of the blade (m/s)
-    A = area of the blade (m^2)
+    A = area of the debris in perpendicular to the flow (m^2)
     CD = drag coefficient
     theta = angle of the debris defender (radians)
     m = mass of the debris (kg)
@@ -41,14 +41,14 @@ def debris_angle(u, l, rho_debris=580):
 
     Rearranging:
     tan(theta) < (u^2 * rho * CD) / (2 * g * l * (rho_debris -rho))
-    l = V/A = length of the prism of debris (e.g. cylinder) (m)
+    l = V/A = diameter of the prism of debris (e.g. cylinder) (m) (volume/area perpendicular to flow)
 
     Parameters:
     ----------
     u : float
         Velocity of the river (m/s)
     l : float
-        Length of the prism of debris (e.g. cylinder) (m)
+        Diameter of the prism of debris (e.g. cylinder) (m)
     rho_debris : float (mean tropical wood density = 580 kg/m^3 https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2015RG000514 )
         Density of the debris (kg/m^3)
 
@@ -202,6 +202,10 @@ def power(river_vel, runner_diameter, r_drum, L, RPM):
 
     power = 0.5 * rho * rel_vel**2 * A * CD * D * angular_vel
 
+    # Power limiting
+    max_power = 2000 # W
+    power[power > max_power] = max_power
+    
     ############## GET VALUES
     # calculate the loss due to cupping ( assuming that the cupping is a pyramid shape)
     # vol = ((L*runner_diameter/2) * bucket_depth)/3
