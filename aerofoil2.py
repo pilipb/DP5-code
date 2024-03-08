@@ -3,8 +3,9 @@ import os
 import numpy 
 import numpy as np
 import math
-from scipy import integrate, linalg
+from scipy import integrate
 from matplotlib import pyplot as plt
+import warnings
 
 from aerofoil import naca_foil, defence_block
 
@@ -387,7 +388,7 @@ def define_panels(x, y, N=40, dir=1):
 
 
 
-def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid=False, grid_offset = 0.2, block_t=0.1, block_w=0.005, block_spacing=0.2,  plot=False):
+def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid=False, grid_offset = 0.2, block_t=0.1, block_w=0.005, block_round = True, block_spacing=0.2,  plot=False):
     '''
     Complete function combining the potential flow solver to calculate the mean velocity between the pontoons
     Author: Phil Blecher. Built on framework by Lorena Barba. Barba, Lorena A., and Mesnard, Olivier (2019). Aero Python: classical aerodynamics of potential flow using Python. 
@@ -414,6 +415,10 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid
 
     
     '''
+
+    # silence all warnings
+    warnings.filterwarnings("ignore")
+
     # create 2 pontoons
     x,y = naca_foil(foil_width)
     x2,y2 = naca_foil(foil_width)
@@ -437,7 +442,6 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid
 
     y2 = y2 + turbine_width + foil_width 
 
-    ###### TODO: add defense grid
 
     if grid:
 
@@ -446,10 +450,10 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid
         
         '''
         # create the blocks
-        number_of_blocks = int((turbine_width + foil_width) / block_spacing)
+        number_of_blocks = int((turbine_width + foil_width) / block_spacing) + 1
         blocks = np.empty(number_of_blocks, dtype=object)
         for i in range(number_of_blocks):
-            blocks[i] = defence_block(block_t, block_w)
+            blocks[i] = defence_block(block_t, block_w, round=block_round)
 
         # print('blocks 1: ' + str(blocks[0]))
         # generate the panels for the blocks
@@ -471,7 +475,7 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid
         # add the blocks to the aerofoils
         aerofoils = np.append(aerofoils, block_panels)
 
-    print('num things: ' + str(len(aerofoils)))
+    # print('num things: ' + str(len(aerofoils)))
 
     # define the freestream conditions
     freestream = Freestream(river_vel,0) # freestream velocity, angle of attack
@@ -500,8 +504,8 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid
 
     # compute the velocity field on the mesh grid
     # define velocity field
-    nx, ny = 30, 30 # increase for grid
-    x_start, x_end = -0.4, turbine_length + 0.2
+    nx, ny = 50, 50 # increase for grid
+    x_start, x_end = -0.6, turbine_length + 0.4
     y_start, y_end = - 0.1 - foil_width, turbine_width + 2*foil_width + 0.1
     x_ = np.linspace(x_start, x_end, nx)
     y_ = np.linspace(y_start, y_end, ny)
@@ -524,12 +528,12 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid
     # the area of interest is 0.3 or 0.3994 of the way along the length of the turbine (the thickest part of the turbine)
     # and the mean of the velocities between [foil_width/2, turbine_width + foil_width/2]
     # in the net velocity field
-    x_point = turbine_length*0.3994
+    x_point = turbine_length*0.4
     y_points = [foil_width/2, turbine_width + foil_width/2]
 
     up_tot=0
     vp_tot=0
-    num_points = 10 # number of points to average over
+    num_points = 20 # number of points to average over
     for i,panels in enumerate(aerofoils):
         for y_point in np.linspace(y_points[0], y_points[1], num_points):
             u, v = vel_field(panels, freestream, x_point, y_point)

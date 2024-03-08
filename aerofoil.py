@@ -20,23 +20,42 @@ Using source panel method
 Aerofoil geometries:
 
 '''
-def defence_block(t, w):
+def defence_block(t, w, round=True):
     '''
-    Build rectangle with thickness t and width w with n points per side
-    
-    
+    Build rectangle or ellipse with thickness t and width w with n points per side
+
+    Parameters
+    ----------
+    t: float
+        thickness of the block
+    w: float
+        width of the block
+    round: bool
+        if True, build ellipse, if False, build rectangle
     '''
     # build circumcircle of the rectangle and then constrain the points to the rectangle
-    theta = np.linspace(0, t, 100)
 
-    r = max(w/2, t/2)
-    
-    x = r * np.cos(theta)
-    y = r * np.sin(theta)
+    if round:
+        # build ellipse with thickness t and width w with n points per side
+        theta = np.linspace(0, 2*np.pi, 100)
 
-    # constrain the points to the rectangle
-    x = np.clip(x, -w/2, w/2)
-    y = np.clip(y, -t/2, t/2)
+        x_ellipse = w/2 * np.cos(theta)
+        y_ellipse = t/2 * np.sin(theta)
+
+        # make it all one surface anticlockwise
+        x = np.concatenate((x_ellipse[::-1], x_ellipse))
+        y = np.concatenate((y_ellipse[::-1], -y_ellipse))
+
+    else:
+        # build a square block
+        theta = np.linspace(0, t, 100)
+        r = max(w/2, t/2)
+        x = r * np.cos(theta)
+        y = r * np.sin(theta)
+
+        # constrain the points to the rectangle
+        x = np.clip(x, -w/2, w/2)
+        y = np.clip(y, -t/2, t/2)
 
     return [x, y]
     
