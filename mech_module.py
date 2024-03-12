@@ -2,6 +2,143 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def wall_calc(worst_case_v = 3.5, l_wall = 425e-3, h = 165e-3, sigma_fat = 27.25e6, tau_mod = 0.8505e9, rho_mat = 1200, cpkg = 2.865):
+    '''
+    Calculates the required thickness of the wall, the yield and shear strength of the wall, and the cost of the wall
+    authored by: Oliver Legood
+
+    Defaults given are for the material polycarbonate
+
+    Parameters:
+    ----------
+    worst_case_v : float
+        Worst case velocity of the river (m/s)
+    l_wall : float
+        Length of the wall (m)
+    h : float
+        Height of the wall at long end (m)
+    sigma_fat : float
+        Fatigue strength of the material (Pa)
+    tau_mod : float
+        Shear modulus of the material (Pa)
+    rho_mat : float
+        Density of the material (kg/m^3)
+    cpkg : float
+        Cost of the material per kg
+
+    Returns:
+    -------
+    t_req : float
+        Required thickness of the wall (mm)
+    yield_strength_mpa : float
+        Yield strength of the wall (MPa)
+    shear_strength_mpa : float
+        Shear strength of the wall (MPa)
+    cost_wall : float
+        Cost of the wall
+
+    '''
+
+    # Wall Thickness Calcs
+    rho = 1000
+    CD = 1.28
+    w = 0.5 * rho * worst_case_v**2 * CD * l_wall
+    M_max = (w * l_wall**2) / 2
+    V = w * l_wall
+
+    # Calculate required thickness (in m)
+    t_req_fatigue = (12 * M_max) / (sigma_fat * h**2) 
+    t_req_shear = (3 * V) / (2 * tau_mod * h) 
+
+    # Round up to nearest mm
+    t_req = round(max(t_req_fatigue, t_req_shear), 3)
+
+    # Calculate mass and cost per wall segment / wall
+    A_segment = (425e-3 * 150e-3) + (0.5 * 15e-3 * 425e-3) # tapering section for our final design
+
+    mass_segment = A_segment * t_req * rho_mat
+    mass_wall = mass_segment * 6
+    cost_wall = mass_wall * cpkg
+
+    I = (t_req * h**3) / 12
+    yield_strength = (M_max * h / 2) / I
+    yield_strength_mpa = yield_strength / 1e6
+
+    shear_strength = (3 * V) / (2 * h * t_req)
+    shear_strength_mpa = shear_strength / 1e6
+
+    return t_req, yield_strength_mpa, shear_strength_mpa, cost_wall
+
+
+
+
+
+def drum_calc(G=26.5e9, w=3229, l_blade=0.6, l_drum = 1.2, R=200e-3, rho_mat = 2910, cpkg = 3.04):
+    '''
+    Calculates the shear and yield strength of the drum for a given thickness
+    authored by: Oliver Legood
+
+    Defaults given are for the material HDPE
+
+    Parameters:
+    ----------
+    G : float
+        Shear modulus of the material (Pa)
+    w : float
+        uniform distributed load (N/m)
+    l_blade : float
+        length of the blade (m)
+    l_drum : float
+        length of the drum (m)
+    R : float
+        outer radius of the drum (m)
+    rho_mat : float
+        density of the material (kg/m^3)
+    cpkg : float
+        cost of the material per kg
+
+    Returns:
+    -------
+    thickness : float
+        Required thickness of the drum (mm)
+    shear_strength_mpa : float
+        Shear strength of the drum (MPa)
+    yield_strength_mpa : float
+        Yield strength of the drum (MPa)
+    shear_mod : float
+        Shear modulus of the drum (GPa)
+    cost : float
+        Cost of the drum
+
+
+    '''
+    # Calculate the forces and moments
+    F = w * l_blade
+    M = F * l_blade / 2
+    T = M * l_drum
+    thi_max = np.pi / 180
+  
+    # Finding required thickness in mm
+    thickness = (R - (R**4 - ((2 * l_drum * T) / (thi_max * G * np.pi)))**(1 / 4)) * 1e4
+
+    r_in = R - thickness
+
+    # Calculate the shear and yield strength
+    J = (np.pi / 2) * (R**4 - r_in**4)
+    shear_strength_pa = (T * R) / J
+    shear_strength_mpa = shear_strength_pa / 1e6
+    shear_mod = ((shear_strength_mpa * l_drum) / (thi_max * R)) / 1e3
+    yield_strength_pa = (M * R) / J
+    yield_strength_mpa = yield_strength_pa / 1e6
+
+    # cost calcs
+    mass = rho_mat * (np.pi * l_drum * (R**2 - (r_in)**2))
+    cost = mass * cpkg
+
+    return thickness, shear_strength_mpa, yield_strength_mpa, shear_mod, cost
+
+
+
 def froude_number(velocity, depth, g=9.81):
     '''
     calculates the Froude number of the river
