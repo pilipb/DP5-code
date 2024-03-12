@@ -328,7 +328,7 @@ def vel_field(panels, freestream, X, Y):
     return u, v
 
 
-def define_panels(x, y, N=40, dir=1):
+def define_panels(x, y, N=60, dir=1):
     """
     Discretizes the geometry into panels using 'cosine' method.
     
@@ -432,7 +432,7 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid
     coords = [[x,y],[x2,y2]]
     # discretise the aerofoil into panels
     for i,aerofoil in enumerate(coords):
-        aerofoils[i] = define_panels(aerofoil[0],aerofoil[1], N=40, dir=i) # flip the direction in which the panels generated!
+        aerofoils[i] = define_panels(aerofoil[0],aerofoil[1], N=60, dir=i) # flip the direction in which the panels generated!
 
     # now move the aerofoils to the correct position
     for panel in aerofoils[1]:

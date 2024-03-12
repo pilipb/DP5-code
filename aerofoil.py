@@ -276,7 +276,7 @@ def rotate(x, y, alpha=0):
     return x_rot, y_rot
 
 # Define the panels
-def define_panels(x, y, N = 20, dir=1):
+def define_panels(x, y, N = 50, dir=1):
     '''
     Discretizes the geometry into panels using the 'cosine' method.
 
