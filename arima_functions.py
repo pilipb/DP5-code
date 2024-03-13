@@ -50,7 +50,7 @@ def calc_slope(lat, lon, radius):
         
         upstream = get_elevation(lat1[i], lon1[i])
         downstream = get_elevation(lat2[i], lon2[i])
-        dist = np.sqrt((lat1[i] - lat2[i])**2 + (lon1[i] - lon2[i])**2 ) * 111139
+        dist = np.sqrt((lat1[i] - lat2[i])**2 + (lon1[i] - lon2[i])**2 ) * 111139 # distance in meters
         slope = abs(downstream - upstream)/dist
         if slope > max_slope:
             max_slope = slope
