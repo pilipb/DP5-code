@@ -51,8 +51,8 @@ def wall_calc(worst_case_v = 3.5, l_wall = 425e-3, h = 165e-3, sigma_fat = 27.25
     t_req_shear = (3 * V) / (2 * tau_mod * h) 
 
     # Round up to nearest mm
-    t_req = round(max(t_req_fatigue, t_req_shear), 3)
-
+    t_req = (max(t_req_fatigue, t_req_shear))
+             
     # Calculate mass and cost per wall segment / wall
     A_segment = (425e-3 * 150e-3) + (0.5 * 15e-3 * 425e-3) # tapering section for our final design
 
