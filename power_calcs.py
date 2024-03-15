@@ -62,7 +62,7 @@ def power_calc(P=False, efficiency=False, A=False, V=False):
     V_range = np.linspace(0.16, 2.6, res) # m/s
 
     inputs = [P, efficiency, A, V]
-    input_names = ['P', 'efficiency', 'A', 'V']
+    input_names = ['Power (W)', 'Efficiency', 'Area (m sq.)', 'Velocity']
     ranges = [P_range, efficiency_range, A_range, V_range]
     missing_var = []
     for i in inputs:
@@ -121,7 +121,7 @@ def power_calc(P=False, efficiency=False, A=False, V=False):
                 # plot the equation
                 plt.figure()
                 plt.plot(x, y)  
-                plt.title(f"{input_names[int_vars[0]]} vs {input_names[int_vars[1]]}")
+                plt.title(f"{input_names[int_vars[0]]} vs {input_names[int_vars[1]]} at 1.5 m/s River Velocity")
                 plt.xlabel(input_names[int_vars[1]])
                 plt.ylabel(input_names[int_vars[0]])
              
