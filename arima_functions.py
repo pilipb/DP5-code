@@ -206,13 +206,16 @@ def arima_model(train, order=(2,0,2), seasonal_order=(0,1,0,73)):
 
 def forecast(model, test):
     forecast = model.forecast(steps=int(len(test)/5))
-    return forecast
+    # find the confidence interval
+    forecast_ci = model.get_forecast(steps=int(len(test)/5)).conf_int()
+
+    return forecast, forecast_ci
 
 def evaluate_model(model, test, plot=True):
     # Get the forecasted values
     # mute warnings
     warnings.filterwarnings("ignore")
-    forecast_values = model.forecast(steps=int(len(test)/5))
+    forecast_values, _ = model.forecast(steps=int(len(test)/5))
     # Drop NaN values
     test_clean = test.dropna()
     forecast_values_clean = forecast_values.dropna()
