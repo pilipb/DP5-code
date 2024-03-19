@@ -7,7 +7,7 @@ from scipy import integrate
 from matplotlib import pyplot as plt
 import warnings
 
-from aerofoil import naca_foil, defence_block
+from aerofoil import naca_foil, defence_block, naca_asym_foil
 
 class Panel:
     """
@@ -388,7 +388,7 @@ def define_panels(x, y, N=60, dir=1):
 
 
 
-def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid=False, grid_offset = 0.2, block_t=0.1, block_w=0.005, block_round = True, block_spacing=0.2,  plot=False):
+def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel, grid=False, grid_offset = 0.2, block_t=0.1, block_w=0.005, block_round = True, block_spacing=0.2,  plot=False):
     '''
     Complete function combining the potential flow solver to calculate the mean velocity between the pontoons
     Author: Phil Blecher. Built on framework by Lorena Barba. Barba, Lorena A., and Mesnard, Olivier (2019). Aero Python: classical aerodynamics of potential flow using Python. 
@@ -420,8 +420,10 @@ def main_pontoon_calc(foil_width, turbine_width, turbine_length, river_vel, grid
     warnings.filterwarnings("ignore")
 
     # create 2 pontoons
-    x,y = naca_foil(foil_width)
-    x2,y2 = naca_foil(foil_width)
+    x,y = naca_asym_foil(t1, t2, side='left')
+    x2,y2 = naca_asym_foil(t1, t2, side='right')
+
+    foil_width = t1
 
     # scale the aerofoil length
     x = x * turbine_length

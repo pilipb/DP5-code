@@ -222,6 +222,60 @@ def naca_one_side(t, alpha=0, side='left'):
 
     return x_rot, y_rot
 
+# Define the geometry of the aerofoil for symmetric aerofoil
+def naca_asym_foil(t1, t2, side='left'):
+    '''
+    function returns the x and y coordinates of the aerofoil geometry
+
+    Parameters
+    ----------
+    t1: float 
+        upper thickness
+        maximum thickness of the aerofoil as a fraction of the chord length
+        (so NACA0012 has t = 0.12)
+    t2: float
+        lower thickness
+        maximum thickness of the aerofoil as a fraction of the chord length
+        (so NACA0012 has t = 0.12)
+    side: str
+        left or right pontoon
+
+    
+        
+    '''
+
+    if side == 'left':
+        # define the x coordinates of the upper surface
+        x_upper = np.linspace(0, 1, 100)
+        # define the y coordinates of the upper surface
+        y_upper = 5*t1 * (0.2969 * np.sqrt(x_upper) - 0.1260 * x_upper - 0.3516 * x_upper**2 + 0.2843 * x_upper**3 - 0.1015 * x_upper**4)
+        # ref NACA
+        # define the x coordinates of the lower surface
+        x_lower = np.linspace(0, 1, 100)
+        # define the y coordinates of the lower surface
+        y_lower = -5*t2 * (0.2969 * np.sqrt(x_lower) - 0.1260 * x_lower - 0.3516 * x_lower**2 + 0.2843 * x_lower**3 - 0.1015 * x_lower**4)
+
+    elif side == 'right':
+
+        # define the x coordinates of the upper surface
+        x_lower = np.linspace(0, 1, 100)
+        # define the y coordinates of the lower surface
+        y_lower = -5*t1 * (0.2969 * np.sqrt(x_lower) - 0.1260 * x_lower - 0.3516 * x_lower**2 + 0.2843 * x_lower**3 - 0.1015 * x_lower**4)
+        # ref NACA
+        # define the x coordinates of the lower surface
+        x_upper = np.linspace(0, 1, 100)
+        # define the y coordinates of the lower surface
+        y_upper = 5*t2 * (0.2969 * np.sqrt(x_upper) - 0.1260 * x_upper - 0.3516 * x_upper**2 + 0.2843 * x_upper**3 - 0.1015 * x_upper**4)
+
+    else:
+        raise ValueError('define the side')
+    
+    # make it all one surface anticlockwise
+    x = np.concatenate((x_upper[::-1], x_lower))
+    y = np.concatenate((y_upper[::-1], y_lower))
+
+    return x, y
+
 
 # Define the geometry of the aerofoil for symmetric aerofoil
 def naca_foil(t, alpha=0):
