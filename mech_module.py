@@ -340,8 +340,12 @@ def power(river_vel, runner_diameter, r_drum, L, RPM):
     power = 0.5 * rho * rel_vel**2 * A * CD * D * angular_vel
 
     # Power limiting
-    max_power = 2000 # W
-    power[power > max_power] = max_power
+    # max_power = 2000 # W
+    # try:
+    #     power[power > max_power] = max_power
+    # except:
+    #     if power > max_power:
+    #         power = max_power
     
     ############## GET VALUES
     # calculate the loss due to cupping ( assuming that the cupping is a pyramid shape)
