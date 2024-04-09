@@ -424,7 +424,7 @@ def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel,turbine_t
         x,y = naca_asym_foil(t1, t2, side='left')
         x2,y2 = naca_asym_foil(t1, t2, side='right')
     elif turbine_type == 2:
-        x,y = naca_foil(t1|)
+        x,y = naca_foil(t1)
         x2,y2 = naca_foil(t1)
     elif turbine_type == 3:
         x,y = naca_asym_foil(t1, t2, side='right')
