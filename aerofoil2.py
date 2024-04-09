@@ -7,7 +7,7 @@ from scipy import integrate
 from matplotlib import pyplot as plt
 import warnings
 
-from aerofoil import naca_foil, defence_block, naca_asym_foil
+from aerofoil import naca_foil, defence_block, naca_asym_foil, nozzle_foil, naca_one_side
 
 class Panel:
     """
@@ -388,7 +388,7 @@ def define_panels(x, y, N=60, dir=1):
 
 
 
-def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel, grid=False, grid_offset = 0.2, block_t=0.1, block_w=0.005, block_round = True, block_spacing=0.2,  plot=False):
+def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel,turbine_type = 1, grid=False, grid_offset = 0.2, block_t=0.1, block_w=0.005, block_round = True, block_spacing=0.2,  plot=False):
     '''
     Complete function combining the potential flow solver to calculate the mean velocity between the pontoons
     Author: Phil Blecher. Built on framework by Lorena Barba. Barba, Lorena A., and Mesnard, Olivier (2019). Aero Python: classical aerodynamics of potential flow using Python. 
@@ -420,8 +420,26 @@ def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel, grid=Fal
     warnings.filterwarnings("ignore")
 
     # create 2 pontoons
-    x,y = naca_asym_foil(t1, t2, side='left')
-    x2,y2 = naca_asym_foil(t1, t2, side='right')
+    if turbine_type == 1:
+        x,y = naca_asym_foil(t1, t2, side='left')
+        x2,y2 = naca_asym_foil(t1, t2, side='right')
+    elif turbine_type == 2:
+        x,y = naca_foil(t1|)
+        x2,y2 = naca_foil(t1)
+    elif turbine_type == 3:
+        x,y = naca_asym_foil(t1, t2, side='right')
+        x2,y2 = naca_asym_foil(t1, t2, side='left')
+    elif turbine_type == 4:
+        x,y = naca_one_side(t1,side='left')
+        x2,y2 = naca_one_side(t1,side='right')
+    elif turbine_type == 5:
+        x,y= naca_one_side(t1,side='right')
+        x2,y2 = naca_one_side(t1,side='left')
+    elif turbine_type == 6:
+        x,y = nozzle_foil(t1)
+        x2,y2 = nozzle_foil(t1)
+    else: 
+        raise ValueError('Invalid turbine type')
 
     foil_width = t1
 
@@ -527,7 +545,7 @@ def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel, grid=Fal
     v_tot /= len(aerofoils)
 
     # compute the mean velocity between the pontoons
-    # the area of interest is 0.3 or 0.3994 of the way along the length of the turbine (the thickest part of the turbine)
+    # the area of interest is 0.3994 of the way along the length of the turbine (the thickest part of the turbine)
     # and the mean of the velocities between [foil_width/2, turbine_width + foil_width/2]
     # in the net velocity field
     x_point = turbine_length*0.4
