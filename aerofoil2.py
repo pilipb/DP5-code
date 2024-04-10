@@ -388,7 +388,7 @@ def define_panels(x, y, N=60, dir=1):
 
 
 
-def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel,turbine_type = 1, grid=False, grid_offset = 0.2, block_t=0.1, block_w=0.005, block_round = True, block_spacing=0.2,  plot=False):
+def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel,turbine_type = 1, grid=False, grid_offset = 0.2, block_t=0.1, block_w=0.005, block_round = True, block_spacing=0.2,  plot=False, axes=None):
     '''
     Complete function combining the potential flow solver to calculate the mean velocity between the pontoons
     Author: Phil Blecher. Built on framework by Lorena Barba. Barba, Lorena A., and Mesnard, Olivier (2019). Aero Python: classical aerodynamics of potential flow using Python. 
@@ -436,8 +436,8 @@ def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel,turbine_t
         x,y= naca_one_side(t1,side='right')
         x2,y2 = naca_one_side(t1,side='left')
     elif turbine_type == 6:
-        x,y = nozzle_foil(t1)
-        x2,y2 = nozzle_foil(t1)
+        x,y = nozzle_foil(t1/2)
+        x2,y2 = nozzle_foil(t1/2)
     else: 
         raise ValueError('Invalid turbine type')
 
@@ -524,7 +524,7 @@ def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel,turbine_t
 
     # compute the velocity field on the mesh grid
     # define velocity field
-    nx, ny = 50, 50 # increase for grid
+    nx, ny = 30, 30 # increase for grid
     x_start, x_end = -0.6, turbine_length + 0.4
     y_start, y_end = - 0.1 - foil_width, turbine_width + 2*foil_width + 0.1
     x_ = np.linspace(x_start, x_end, nx)
@@ -568,25 +568,27 @@ def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel,turbine_t
     
 
     if plot:
-        plt.figure()
-        plt.axis('equal')
-        for panels in aerofoils:
-            plt.fill([panel.xc for panel in panels],
-                [panel.yc for panel in panels],
-                color='k', linestyle='solid', linewidth=2, zorder=2)
-            
-        # add contours of velocity
-        plt.contourf(X, Y, np.sqrt(u_tot**2 + v_tot**2), cmap='jet', levels=100)
-        cbar = plt.colorbar(orientation='vertical', shrink=0.5, pad=0.1)
-        cbar.set_label('Velocity magnitude', fontsize=16)
+        if axes is None:
+            fig, ax = plt.figure()
+            axes = ax
+        else:
+            axes.axis('equal')
+            for panels in aerofoils:
+                axes.fill([panel.xc for panel in panels],
+                    [panel.yc for panel in panels],
+                    color='k', linestyle='solid', linewidth=2, zorder=2)
+                
+            # add contours of velocity
+            axes.contourf(X, Y, np.sqrt(u_tot**2 + v_tot**2), cmap='jet', levels=100)
+            # cbar = axes.colorbar(orientation='vertical', shrink=0.5, pad=0.1)
+            # cbar.set_label('Velocity magnitude', fontsize=16)
 
-        plt.grid()
-        plt.title('Flow around two pontoons', fontsize=16)
-        plt.xlim(x_start, x_end)
-        plt.ylim(y_start, y_end)
-        plt.xlabel('x', fontsize=16)
-        plt.ylabel('y', fontsize=16)
-        plt.show()
+            axes.grid()
+            # axes.title('Flow around two pontoons', fontsize=16)
+            # axes.xlim(x_start, x_end)
+            # axes.ylim(y_start, y_end)
+            # axes.xlabel('x', fontsize=16)
+            # axes.ylabel('y', fontsize=16)
 
 
     return vel
