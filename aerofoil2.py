@@ -524,7 +524,7 @@ def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel,turbine_t
 
     # compute the velocity field on the mesh grid
     # define velocity field
-    nx, ny = 30, 30 # increase for grid
+    nx, ny = 40, 40 # increase for grid
     x_start, x_end = -0.6, turbine_length + 0.4
     y_start, y_end = - 0.1 - foil_width, turbine_width + 2*foil_width + 0.1
     x_ = np.linspace(x_start, x_end, nx)
@@ -564,31 +564,34 @@ def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel,turbine_t
     vp_tot /= len(aerofoils)*num_points
 
     # find the net velocity at this point
-    vel = np.sqrt(up_tot**2 + vp_tot**2)
+    vel_spot = np.sqrt(up_tot**2 + vp_tot**2)
     
 
     if plot:
         if axes is None:
-            fig, ax = plt.figure()
+            fig, ax = plt.subplots(figsize=(12, 10))
             axes = ax
-        else:
-            axes.axis('equal')
-            for panels in aerofoils:
-                axes.fill([panel.xc for panel in panels],
-                    [panel.yc for panel in panels],
-                    color='k', linestyle='solid', linewidth=2, zorder=2)
-                
-            # add contours of velocity
-            axes.contourf(X, Y, np.sqrt(u_tot**2 + v_tot**2), cmap='jet', levels=100)
-            # cbar = axes.colorbar(orientation='vertical', shrink=0.5, pad=0.1)
-            # cbar.set_label('Velocity magnitude', fontsize=16)
+        
+        axes.axis('auto')
 
-            axes.grid()
-            # axes.title('Flow around two pontoons', fontsize=16)
-            # axes.xlim(x_start, x_end)
-            # axes.ylim(y_start, y_end)
-            # axes.xlabel('x', fontsize=16)
-            # axes.ylabel('y', fontsize=16)
+        for panels in aerofoils:
+            axes.fill([panel.xc for panel in panels],
+                [panel.yc for panel in panels],
+                color='k', linestyle='solid', linewidth=2, zorder=2)
+            
+        # add contours 100 levels of velocity
+        vel = np.sqrt(u_tot**2 + v_tot**2)
+        levels = numpy.linspace(0.9, 1.2, 50)
+        # label the contours
+        cont = axes.contourf(X, Y, vel, levels=levels, extend='both', cmap='jet')
+        cbar = plt.colorbar(cont, orientation='vertical', pad=0.05, ticks=[0.95, 1.0, 1.05, 1.1, 1.15])
+        # add buffer
+        cbar.set_label('Velocity Magnitude', fontsize=20)
+
+        axes.grid()
+        axes.set_xlabel('x', fontsize=20)
+        axes.set_ylabel('y', fontsize=20)
+        plt.show()
 
 
-    return vel
+    return vel_spot
