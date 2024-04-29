@@ -565,11 +565,15 @@ def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel,turbine_t
 
     # find the net velocity at this point
     vel_spot = np.sqrt(up_tot**2 + vp_tot**2)
+
+    
+
     
 
     if plot:
         if axes is None:
             fig, ax = plt.subplots(figsize=(12, 10))
+            plt.rcParams.update({'font.size': 15})
             axes = ax
         
         axes.axis('auto')
@@ -584,14 +588,23 @@ def main_pontoon_calc(t1, t2, turbine_width, turbine_length, river_vel,turbine_t
         levels = numpy.linspace(0.9, 1.2, 50)
         # label the contours
         cont = axes.contourf(X, Y, vel, levels=levels, extend='both', cmap='jet')
-        cbar = plt.colorbar(cont, orientation='vertical', pad=0.05, ticks=[0.95, 1.0, 1.05, 1.1, 1.15])
-        # add buffer
-        cbar.set_label('Velocity Magnitude', fontsize=20)
+        if axes is None:
+            cbar = plt.colorbar(cont, orientation='vertical', pad=0.05, ticks=[0.95, 1.0, 1.05, 1.1, 1.15])
+            cbar.set_label('Velocity Magnitude', fontsize=15)
 
+        # draw a line vertical at 0.4 chord between the pontoons
+        axes.axvline(x_point,0,1.5, color='k', linestyle='--', linewidth=2)
+        # text saying the mean velocity
+        axes.text(x_point + 0.05, 0.75, 'Mean velocity: {:.4f} m/s'.format(vel_spot), fontsize=18)
+        
         axes.grid()
-        axes.set_xlabel('x', fontsize=20)
-        axes.set_ylabel('y', fontsize=20)
-        plt.show()
+        axes.set_xlabel('x', fontsize=15)
+        axes.set_ylabel('y', fontsize=15)
+        # increase axes test size
+        axes.tick_params(axis='both', labelsize=15)
+        
+        if axes is None:
+            plt.show()
 
 
     return vel_spot

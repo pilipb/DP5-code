@@ -37,7 +37,7 @@ def defence_block(t, w, round=True):
 
     if round:
         # build ellipse with thickness t and width w with n points per side
-        theta = np.linspace(0, 2*np.pi, 100)
+        theta = np.linspace(0, 2*np.pi, 200)
 
         x_ellipse = w/2 * np.cos(theta)
         y_ellipse = t/2 * np.sin(theta)
@@ -48,7 +48,7 @@ def defence_block(t, w, round=True):
 
     else:
         # build a square block
-        theta = np.linspace(0, t, 100)
+        theta = np.linspace(0, 2*np.pi, 200)
         r = max(w/2, t/2)
         x = r * np.cos(theta)
         y = r * np.sin(theta)
